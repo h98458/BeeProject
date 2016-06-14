@@ -42,6 +42,7 @@ AS_PACKAGE( BeePackage_System, BeeSystemInfo, info );
 
 #if (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
+#define IOS9_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"9.0"] != NSOrderedAscending )
 #define IOS8_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"8.0"] != NSOrderedAscending )
 #define IOS7_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending )
 #define IOS6_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"6.0"] != NSOrderedAscending )
@@ -49,6 +50,8 @@ AS_PACKAGE( BeePackage_System, BeeSystemInfo, info );
 #define IOS4_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"4.0"] != NSOrderedAscending )
 #define IOS3_OR_LATER		( [[[UIDevice currentDevice] systemVersion] compare:@"3.0"] != NSOrderedAscending )
 
+#define IOS9_OR_EARLIER		( !IOS10_OR_LATER )
+#define IOS8_OR_EARLIER		( !IOS9_OR_LATER )
 #define IOS7_OR_EARLIER		( !IOS8_OR_LATER )
 #define IOS6_OR_EARLIER		( !IOS7_OR_LATER )
 #define IOS5_OR_EARLIER		( !IOS6_OR_LATER )
@@ -62,6 +65,8 @@ AS_PACKAGE( BeePackage_System, BeeSystemInfo, info );
 
 #else	// #if (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
+#define IOS9_OR_LATER		(NO)
+#define IOS8_OR_LATER		(NO)
 #define IOS7_OR_LATER		(NO)
 #define IOS6_OR_LATER		(NO)
 #define IOS5_OR_LATER		(NO)

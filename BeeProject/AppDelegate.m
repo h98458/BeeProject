@@ -18,7 +18,7 @@
 {
     bee.ui.config.ASR = YES;
     bee.ui.config.iOS6Mode = YES;
-    //    bee.ui.config.iOS7Mode = YES;
+//    bee.ui.config.iOS7Mode = YES;
     bee.ui.config.cacheAsyncLoad = YES;
     bee.ui.config.cacheAsyncSave = YES;
     
@@ -35,7 +35,7 @@
     
     if ( [BeeSystemInfo isDevicePad] )
     {
-        self.window.rootViewController = [AppBoard_iPhone sharedInstance]; // [AppBoard_iPad sharedInstance];
+        self.window.rootViewController = [AppBoard_iPad sharedInstance];
     }
     else
     {

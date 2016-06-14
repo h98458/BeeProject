@@ -11,7 +11,7 @@
 
 #pragma mark -
 
-AS_UI( AppTab_iPhone, tabbar )
+AS_UI( AppTab_iPhone, tabbar_iPhone )
 
 #pragma mark -
 

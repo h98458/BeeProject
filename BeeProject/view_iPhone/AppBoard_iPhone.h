@@ -12,7 +12,7 @@
 
 #pragma mark -
 
-AS_UI( AppBoard_iPhone, appBoard )
+AS_UI( AppBoard_iPhone, appBoard_iPhone )
 
 #pragma mark -
 @interface AppBoard_iPhone : BeeUIBoard

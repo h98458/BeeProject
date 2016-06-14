@@ -17,7 +17,7 @@
 
 #pragma mark -
 
-DEF_UI( AppBoard_iPhone, appBoard )
+DEF_UI( AppBoard_iPhone, appBoard_iPhone )
 
 #pragma mark -
 
@@ -37,8 +37,6 @@ DEF_SINGLETON( AppBoard_iPhone )
 @synthesize bForeground = _bForeground;
 
 DEF_SIGNAL( TAB_HOME )
-
-
 
 - (void)load
 {
@@ -76,7 +74,7 @@ ON_CREATE_VIEWS( signal )
     
     [self observeNotification:BeeUIRouter.STACK_DID_CHANGED];
     
-    _tabbarOriginY = self.viewBound.size.height - TAB_HEIGHT + 1;
+    _tabbarOriginY = self.view.height - TAB_HEIGHT + 1;
     
     [_router open:@"main" animated:NO];
     
@@ -93,8 +91,8 @@ ON_DELETE_VIEWS( signal )
 
 ON_LAYOUT_VIEWS( signal )
 {
-    bee.ui.tabbar.frame = CGRectMake( 0, _tabbarOriginY, self.viewBound.size.width, TAB_HEIGHT );
-    bee.ui.router.view.frame = CGRectMake( 0, 0, self.viewBound.size.width, self.viewBound.size.height );
+    bee.ui.tabbar_iPhone.frame = CGRectMake( 0, _tabbarOriginY, self.view.width, TAB_HEIGHT );
+    bee.ui.router.view.frame = CGRectMake( 0, 0, self.view.width, self.view.height );
     _router.view.frame = self.bounds;
 }
 
@@ -244,7 +242,7 @@ ON_SIGNAL2( AppTab_iPhone, signal )
         int tabIndex = ((NSNumber *)signal.object).intValue;
         if (tabIndex == 0)
         {
-            [bee.ui.tabbar updateBadge:0 TabIndex:0];
+            [bee.ui.tabbar_iPhone updateBadge:0 TabIndex:0];
             [bee.ui.router open:AppBoard_iPhone.TAB_HOME animated:NO];
         }
         else if (tabIndex == 1)
@@ -260,7 +258,7 @@ ON_SIGNAL2( AppTab_iPhone, signal )
 {
     _tabbarOriginY = self.view.height - TAB_HEIGHT + 1;
     
-    CGRect tabbarFrame = bee.ui.tabbar.frame;
+    CGRect tabbarFrame = bee.ui.tabbar_iPhone.frame;
     tabbarFrame.origin.y = _tabbarOriginY;
     
     [UIView beginAnimations:nil context:NULL];
@@ -268,7 +266,7 @@ ON_SIGNAL2( AppTab_iPhone, signal )
     [UIView setAnimationDelay:0.2];
     [UIView setAnimationBeginsFromCurrentState:YES];
     
-    bee.ui.tabbar.frame = tabbarFrame;
+    bee.ui.tabbar_iPhone.frame = tabbarFrame;
     
     [UIView commitAnimations];
 }
@@ -277,7 +275,7 @@ ON_SIGNAL2( AppTab_iPhone, signal )
 {
     _tabbarOriginY = self.view.height;
     
-    CGRect tabbarFrame = bee.ui.tabbar.frame;
+    CGRect tabbarFrame = bee.ui.tabbar_iPhone.frame;
     tabbarFrame.origin.y = _tabbarOriginY;
     
     [UIView beginAnimations:nil context:NULL];
@@ -285,7 +283,7 @@ ON_SIGNAL2( AppTab_iPhone, signal )
     [UIView setAnimationDelay:0.2];
     [UIView setAnimationBeginsFromCurrentState:YES];
     
-    bee.ui.tabbar.frame = tabbarFrame;
+    bee.ui.tabbar_iPhone.frame = tabbarFrame;
     
     [UIView commitAnimations];
 }

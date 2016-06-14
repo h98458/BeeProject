@@ -65,7 +65,7 @@ ON_LAYOUT_VIEWS( signal )
 
 ON_WILL_APPEAR( signal )
 {
-    [bee.ui.appBoard hideTabbar];
+    [bee.ui.appBoard_iPhone hideTabbar];
 }
 
 ON_DID_APPEAR( signal )

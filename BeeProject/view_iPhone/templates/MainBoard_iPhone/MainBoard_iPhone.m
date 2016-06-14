@@ -74,7 +74,7 @@ ON_LOAD_DATAS( signal )
 
 ON_WILL_APPEAR( signal )
 {
-    [bee.ui.appBoard showTabbar];
+    [bee.ui.appBoard_iPhone showTabbar];
     [self.scroll reloadData];
 }
 

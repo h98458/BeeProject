@@ -10,7 +10,7 @@
 
 #pragma mark -
 
-DEF_UI( AppTab_iPhone, tabbar )
+DEF_UI( AppTab_iPhone, tabbar_iPhone )
 
 #pragma mark -
 
