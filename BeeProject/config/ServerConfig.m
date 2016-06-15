@@ -22,13 +22,13 @@ DEF_SINGLETON( ServerConfig )
 	if ( self )
 	{
         //公共服务端地址
-        self.serviceUrl = @"http://www.beta-info.com/project/betainfo/communicate.php";
+        self.serviceUrl = @"";
 
         self.appId = @"";
         self.bundleId = @"";
         
-        self.system = @"SCHOOL";
-        self.key = @"beta-info";
+        self.system = @"";
+        self.key = @"";
         self.interfaceVer = @"0";
         
         self.appName = @"";
