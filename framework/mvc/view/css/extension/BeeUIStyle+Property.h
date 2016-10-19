@@ -100,7 +100,7 @@ AS_STRING( OVERFLOW_INHERIT )
 @property (nonatomic, readonly) BeeUIStyleBlockN		TEXT;
 @property (nonatomic, readonly) BeeUIStyleBlockN		PACKAGE;
 @property (nonatomic, readonly) BeeUIStyleBlockN		DISPLAY;
-@property (nonatomic, readonly) BeeUIStyleBlockN		OVERFLOW;
+@property (nonatomic, readonly) BeeUIStyleBlockN		OVERFLOW_NEW;
 
 @property (nonatomic, readonly) BeeUIMetrics *			x;
 @property (nonatomic, readonly) BeeUIMetrics *			y;

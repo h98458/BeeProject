@@ -137,7 +137,7 @@ DEF_STRING( OVERFLOW_INHERIT,		@"inherit" )
 @dynamic TEXT;
 @dynamic PACKAGE;
 @dynamic DISPLAY;
-@dynamic OVERFLOW;
+@dynamic OVERFLOW_NEW;
 
 - (BeeUIMetrics *)x
 {
@@ -846,7 +846,7 @@ DEF_STRING( OVERFLOW_INHERIT,		@"inherit" )
 	return [[block copy] autorelease];
 }
 
-- (BeeUIStyleBlockN)OVERFLOW
+- (BeeUIStyleBlockN)OVERFLOW_NEW
 {
 	BeeUIStyleBlockN block = ^ BeeUIStyle * ( id first, ... )
 	{
