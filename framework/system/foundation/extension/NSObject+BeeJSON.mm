@@ -308,18 +308,26 @@
 						NSObject * val = [(NSDictionary *)obj objectForKey:key];
 						if ( val )
 						{
-							NSDictionary * subresult = [val objectToDictionaryUntilRootClass:rootClass];
-							if ( subresult )
-							{
-								[dict setObject:subresult forKey:key];
-							}
-							else
-							{
-								if ( [BeeTypeEncoding isAtomClass:[val class]] )
-								{
-									[dict setObject:val forKey:key];
-								}
-							}
+                            //edit by hrg 2016-11-21
+                            if ([val isKindOfClass:[NSString class]])
+                            {
+                                [dict setObject:val forKey:key];
+                            }
+                            else
+                            {
+                                NSDictionary * subresult = [val objectToDictionaryUntilRootClass:rootClass];
+                                if ( subresult )
+                                {
+                                    [dict setObject:subresult forKey:key];
+                                }
+                                else
+                                {
+                                    if ( [BeeTypeEncoding isAtomClass:[val class]] )
+                                    {
+                                        [dict setObject:val forKey:key];
+                                    }
+                                }
+                            }
 						}
 					}
 					
@@ -429,18 +437,26 @@
 							NSObject * val = [(NSDictionary *)obj objectForKey:key];
 							if ( val )
 							{
-								NSDictionary * subresult = [val objectToDictionaryUntilRootClass:rootClass];
-								if ( subresult )
-								{
-									[dict setObject:subresult forKey:key];
-								}
-								else
-								{
-									if ( [BeeTypeEncoding isAtomClass:[val class]] )
-									{
-										[dict setObject:val forKey:key];
-									}
-								}
+                                //edit by hrg 2016-11-21
+                                if ([val isKindOfClass:[NSString class]])
+                                {
+                                    [dict setObject:val forKey:key];
+                                }
+                                else
+                                {
+                                    NSDictionary * subresult = [val objectToDictionaryUntilRootClass:rootClass];
+                                    if ( subresult )
+                                    {
+                                        [dict setObject:subresult forKey:key];
+                                    }
+                                    else
+                                    {
+                                        if ( [BeeTypeEncoding isAtomClass:[val class]] )
+                                        {
+                                            [dict setObject:val forKey:key];
+                                        }
+                                    }
+                                }
 							}
 						}
 						
