@@ -281,20 +281,31 @@
 				{
 					NSMutableArray * array = [NSMutableArray array];
 					
+                    //bywxh
 					for ( NSObject * elem in (NSArray *)obj )
 					{
-						NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
-						if ( dict )
-						{
-							[array addObject:dict];
-						}
-						else
-						{
-							if ( [BeeTypeEncoding isAtomClass:[elem class]] )
-							{
-								[array addObject:elem];
-							}
-						}
+                        if ([elem isKindOfClass:[NSArray class]] ||
+                            [elem isKindOfClass:[NSData class]] ||
+                            [elem isKindOfClass:[NSDate class]] ||
+                            [elem isKindOfClass:[NSNull class]] ||
+                            [elem isKindOfClass:[NSString class]] ||
+                            [elem isKindOfClass:[NSValue class]])
+                        {
+                            [array addObject:elem];
+                        } else {
+                            NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
+                            if ( dict )
+                            {
+                                [array addObject:dict];
+                            }
+                            else
+                            {
+                                if ( [BeeTypeEncoding isAtomClass:[elem class]] )
+                                {
+                                    [array addObject:elem];
+                                }
+                            }
+                        }
 					}
 					
 					[result setObject:array forKey:key];
@@ -305,11 +316,16 @@
 					
 					for ( NSString * key in ((NSDictionary *)obj).allKeys )
 					{
+                        //bywxh
 						NSObject * val = [(NSDictionary *)obj objectForKey:key];
 						if ( val )
 						{
-                            //edit by hrg 2016-11-21
-                            if ([val isKindOfClass:[NSString class]])
+                            if ([val isKindOfClass:[NSArray class]] ||
+                                [val isKindOfClass:[NSData class]] ||
+                                [val isKindOfClass:[NSDate class]] ||
+                                [val isKindOfClass:[NSNull class]] ||
+                                [val isKindOfClass:[NSString class]] ||
+                                [val isKindOfClass:[NSValue class]])
                             {
                                 [dict setObject:val forKey:key];
                             }
@@ -328,6 +344,7 @@
                                     }
                                 }
                             }
+							
 						}
 					}
 					
@@ -411,18 +428,29 @@
 							}
 							else
 							{
-								NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
-								if ( dict )
-								{
-									[array addObject:dict];
-								}
-								else
-								{
-									if ( [BeeTypeEncoding isAtomClass:[elem class]] )
-									{
-										[array addObject:elem];
-									}
-								}
+                                //bywxh
+                                if ([elem isKindOfClass:[NSArray class]] ||
+                                    [elem isKindOfClass:[NSData class]] ||
+                                    [elem isKindOfClass:[NSDate class]] ||
+                                    [elem isKindOfClass:[NSNull class]] ||
+                                    [elem isKindOfClass:[NSString class]] ||
+                                    [elem isKindOfClass:[NSValue class]])
+                                {
+                                    [array addObject:elem];
+                                } else {
+                                    NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
+                                    if ( dict )
+                                    {
+                                        [array addObject:dict];
+                                    }
+                                    else
+                                    {
+                                        if ( [BeeTypeEncoding isAtomClass:[elem class]] )
+                                        {
+                                            [array addObject:elem];
+                                        }
+                                    }
+                                }
 							}
 						}
 						
@@ -434,11 +462,16 @@
 						
 						for ( NSString * key in ((NSDictionary *)obj).allKeys )
 						{
+                            //bywxh
 							NSObject * val = [(NSDictionary *)obj objectForKey:key];
 							if ( val )
 							{
-                                //edit by hrg 2016-11-21
-                                if ([val isKindOfClass:[NSString class]])
+                                if ([val isKindOfClass:[NSArray class]] ||
+                                    [val isKindOfClass:[NSData class]] ||
+                                    [val isKindOfClass:[NSDate class]] ||
+                                    [val isKindOfClass:[NSNull class]] ||
+                                    [val isKindOfClass:[NSString class]] ||
+                                    [val isKindOfClass:[NSValue class]])
                                 {
                                     [dict setObject:val forKey:key];
                                 }
@@ -598,20 +631,29 @@
 	{
 		NSMutableArray * array = [NSMutableArray array];
 
+        //bywxh
 		for ( NSObject * elem in (NSArray *)self )
 		{
-			NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
-			if ( dict )
-			{
-				[array addObject:dict];
-			}
-			else
-			{
-				if ( [BeeTypeEncoding isAtomClass:[elem class]] )
-				{
-					[array addObject:elem];
-				}
-			}
+            if ([elem isKindOfClass:[NSArray class]] ||
+                [elem isKindOfClass:[NSData class]] ||
+                [elem isKindOfClass:[NSDate class]] ||
+                [elem isKindOfClass:[NSNull class]] ||
+                [elem isKindOfClass:[NSString class]] ||
+                [elem isKindOfClass:[NSValue class]])
+            {
+                [array addObject:elem];
+            } else {
+                NSDictionary * dict = [elem objectToDictionaryUntilRootClass:rootClass];
+                if ( dict )
+                {
+                    [array addObject:dict];
+                } else {
+                    if ( [BeeTypeEncoding isAtomClass:[elem class]] )
+                    {
+                        [array addObject:elem];
+                    }
+                }
+            }
 		}
 
 		json = [array JSONString];
