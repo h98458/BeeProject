@@ -128,7 +128,7 @@ DEF_SINGLETON( BeePackage )
 
 		"BeeUnitTest",
 		"BeeSingleton",
-		"BeeService",
+//		"BeeService",
 
 		NULL
 	};

@@ -147,4 +147,6 @@
  */
 @interface BeePackage : NSObject
 @property (nonatomic, readonly) NSArray * loadedPackages;
+
+- (void)loadClasses;
 @end

@@ -12,7 +12,7 @@
 
 @interface MainBoard_iPhone()
 {
-
+    QMUIButton *button;
 }
 @end
 
@@ -52,6 +52,12 @@ ON_CREATE_VIEWS( signal )
     self.scroll.vertical = YES;
     [self.view addSubview:self.scroll];
     [self.scroll setBaseInsets:UIEdgeInsetsMake(0, 0, 10, 0)];
+    
+    // 边框按钮
+    button = [QDUIHelper generateLightBorderedButton];
+    [button setTitle:@"边框支持高亮的按钮" forState:UIControlStateNormal];
+    [self.view addSubview:button];
+    
 }
 
 ON_DELETE_VIEWS( signal )
@@ -63,7 +69,8 @@ ON_LAYOUT_VIEWS( signal )
 {
     if (self.scroll.height<=0)
     {
-        self.scroll.frame = CGRectMake(0, 0, self.view.width, self.view.height);
+//        self.scroll.frame = CGRectMake(0, 0, self.view.width, self.view.height);
+        button.frame = CGRectMake(85, 100, 150, 35);
     }
 }
 

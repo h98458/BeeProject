@@ -10,6 +10,10 @@
 #import "AppBoard_iPhone.h"
 #import "AppBoard_iPad.h"
 
+#import "QMUIConfigurationTemplate.h"
+#import "QDUIHelper.h"
+#import "QDCommonUI.h"
+
 #pragma mark -
 
 @implementation AppDelegate
@@ -21,6 +25,7 @@
 //    bee.ui.config.iOS7Mode = YES;
     bee.ui.config.cacheAsyncLoad = YES;
     bee.ui.config.cacheAsyncSave = YES;
+    
     
     
     // 配置提示框
@@ -50,6 +55,18 @@
     [super application:application didFinishLaunchingWithOptions:launchOptions];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    // 启动QMUI的配置模板
+    [QMUIConfigurationTemplate setupConfigurationTemplate];
+    
+    // 将全局的控件样式渲染出来
+    [QMUIConfigurationManager renderGlobalAppearances];
+    
+    // QD自定义的全局样式渲染
+    [QDCommonUI renderGlobalAppearances];
+    
+    // 将状态栏设置为希望的样式
+    [QMUIHelper renderStatusBarStyleLight];
     
     return YES;
 }
