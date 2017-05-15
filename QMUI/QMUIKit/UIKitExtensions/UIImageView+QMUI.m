@@ -8,7 +8,7 @@
 
 #import "UIImageView+QMUI.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 
 @implementation UIImageView (QMUI)
 
@@ -27,8 +27,8 @@
     CGFloat verticalRatio = limitSize.height / currentSize.height;
     CGFloat ratio = fminf(horizontalRatio, verticalRatio);
     CGRect frame = self.frame;
-    frame.size.width = flatf(currentSize.width * ratio);
-    frame.size.height = flatf(currentSize.height * ratio);
+    frame.size.width = flat(currentSize.width * ratio);
+    frame.size.height = flat(currentSize.height * ratio);
     self.frame = frame;
 }
 

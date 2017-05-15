@@ -8,7 +8,7 @@
 
 #import "QMUIAlbumViewController.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "UIView+QMUI.h"
 #import "QMUIAssetsManager.h"
@@ -76,13 +76,13 @@ const UIEdgeInsets QMUIAlbumTableViewCellDefaultAlbumNameInsets = {0, 8, 0, 4};
     
     CGFloat contentViewPaddingRight = 10;
     self.imageView.frame = CGRectMake(0, 0, CGRectGetHeight(self.contentView.bounds), CGRectGetHeight(self.contentView.bounds));
-    self.textLabel.frame = CGRectSetXY(self.textLabel.frame, CGRectGetMaxX(self.imageView.frame) + self.albumNameInsets.left, flatf([self.textLabel qmui_minYWhenCenterInSuperview]));
+    self.textLabel.frame = CGRectSetXY(self.textLabel.frame, CGRectGetMaxX(self.imageView.frame) + self.albumNameInsets.left, flat([self.textLabel qmui_minYWhenCenterInSuperview]));
     CGFloat textLabelMaxWidth = CGRectGetWidth(self.contentView.bounds) - contentViewPaddingRight - CGRectGetWidth(self.detailTextLabel.frame) - self.albumNameInsets.right - CGRectGetMinX(self.textLabel.frame);
     if (CGRectGetWidth(self.textLabel.frame) > textLabelMaxWidth) {
         self.textLabel.frame = CGRectSetWidth(self.textLabel.frame, textLabelMaxWidth);
     }
     
-    self.detailTextLabel.frame = CGRectSetXY(self.detailTextLabel.frame, CGRectGetMaxX(self.textLabel.frame) + self.albumNameInsets.right, flatf([self.detailTextLabel qmui_minYWhenCenterInSuperview]));
+    self.detailTextLabel.frame = CGRectSetXY(self.detailTextLabel.frame, CGRectGetMaxX(self.textLabel.frame) + self.albumNameInsets.right, flat([self.detailTextLabel qmui_minYWhenCenterInSuperview]));
     _bottomLineLayer.frame = CGRectMake(0, CGRectGetHeight(self.contentView.bounds) - PixelOne, CGRectGetWidth(self.bounds), PixelOne);
 }
 
@@ -129,15 +129,13 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
     BOOL _usePhotoKit;
 }
 
-- (instancetype)initWithStyle:(UITableViewStyle)style {
-    if (self = [super initWithStyle:style]) {
-        _usePhotoKit = IOS_VERSION >= 8.0;
-        if (albumViewControllerAppearance) {
-            // 避免 albumViewControllerAppearance init 时走到这里来，导致死循环
-            self.albumTableViewCellHeight = [QMUIAlbumViewController appearance].albumTableViewCellHeight;
-        }
+- (void)didInitialized {
+    [super didInitialized];
+    _usePhotoKit = IOS_VERSION >= 8.0;
+    if (albumViewControllerAppearance) {
+        // 避免 albumViewControllerAppearance init 时走到这里来，导致死循环
+        self.albumTableViewCellHeight = [QMUIAlbumViewController appearance].albumTableViewCellHeight;
     }
-    return self;
 }
 
 - (void)setNavigationItemsIsInEditMode:(BOOL)isInEditMode animated:(BOOL)animated {
@@ -157,15 +155,16 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
     [super viewDidLoad];
     if ([QMUIAssetsManager authorizationStatus] == QMUIAssetAuthorizationStatusNotAuthorized) {
         // 如果没有获取访问授权，或者访问授权状态已经被明确禁止，则显示提示语，引导用户开启授权
-        if (!self.tipTextWhenNoPhotosAuthorization) {
+        NSString *tipString = self.tipTextWhenNoPhotosAuthorization;
+        if (!tipString) {
             NSDictionary *mainInfoDictionary = [[NSBundle mainBundle] infoDictionary];
             NSString *appName = [mainInfoDictionary objectForKey:@"CFBundleDisplayName"];
             if (!appName) {
                 appName = [mainInfoDictionary objectForKey:(NSString *)kCFBundleNameKey];
             }
-            self.tipTextWhenNoPhotosAuthorization = [NSString stringWithFormat:@"请在设备的\"设置-隐私-照片\"选项中，允许%@访问你的手机相册", appName];
+            tipString = [NSString stringWithFormat:@"请在设备的\"设置-隐私-照片\"选项中，允许%@访问你的手机相册", appName];
         }
-        [self showEmptyViewWithText:self.tipTextWhenNoPhotosAuthorization detailText:nil buttonTitle:nil buttonAction:nil];
+        [self showEmptyViewWithText:tipString detailText:nil buttonTitle:nil buttonAction:nil];
     } else {
         
         _albumsArray = [[NSMutableArray alloc] init];
@@ -184,15 +183,9 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
     if ([_albumsArray count] > 0) {
         [self.tableView reloadData];
     } else {
-        if (!self.tipTextWhenPhotosEmpty) {
-            self.tipTextWhenPhotosEmpty = @"空照片";
-        }
-        [self showEmptyViewWithText:self.tipTextWhenPhotosEmpty detailText:nil buttonTitle:nil buttonAction:nil];
+        NSString *tipString = self.tipTextWhenPhotosEmpty ? : @"空照片";
+        [self showEmptyViewWithText:tipString detailText:nil buttonTitle:nil buttonAction:nil];
     }
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
 }
 
 #pragma mark - <UITableViewDelegate,UITableViewDataSource>
@@ -227,10 +220,9 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (!_imagePickerViewController) {
-        if (self.albumViewControllerDelegate && [self.albumViewControllerDelegate respondsToSelector:@selector(imagePickerViewControllerForAlbumViewController:)]) {
-            _imagePickerViewController = [self.albumViewControllerDelegate imagePickerViewControllerForAlbumViewController:self];
-        }
+        _imagePickerViewController = [self.albumViewControllerDelegate imagePickerViewControllerForAlbumViewController:self];
     }
+    NSAssert(_imagePickerViewController, @"self.%@ 必须实现 %@ 并返回一个 %@ 对象", NSStringFromSelector(@selector(albumViewControllerDelegate)), NSStringFromSelector(@selector(imagePickerViewControllerForAlbumViewController:)), NSStringFromClass([QMUIImagePickerViewController class]));
     QMUIAssetsGroup *assetsGroup = [_albumsArray objectAtIndex:indexPath.row];
     [_imagePickerViewController refreshWithAssetsGroup:assetsGroup];
     _imagePickerViewController.title = [assetsGroup name];

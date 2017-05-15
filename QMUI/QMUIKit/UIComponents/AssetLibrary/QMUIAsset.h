@@ -8,20 +8,22 @@
 
 #import <Photos/PHImageManager.h>
 
-typedef enum {
+/// Asset 的类型
+typedef NS_ENUM(NSUInteger, QMUIAssetType) {
     QMUIAssetTypeUnknow,                              // 未知类型的 Asset
     QMUIAssetTypeImage,                               // 图片类型的 Asset
     QMUIAssetTypeVideo,                               // 视频类型的 Asset
     QMUIAssetTypeAudio NS_ENUM_AVAILABLE_IOS(8_0),    // 音频类型的 Asset，仅被 PhotoKit 支持，因此只适用于 iOS 8.0
     QMUIAssetTypeLivePhoto NS_ENUM_AVAILABLE_IOS(9_1) // Live Photo 类型的 Asset，仅被 PhotoKit 支持，因此只适用于 iOS 9.1
-} QMUIAssetType; // Asset 的类型
+};
 
-typedef enum {
+/// 从 iCloud 请求 Asset 大图的状态
+typedef NS_ENUM(NSUInteger, QMUIAssetDownloadStatus) {
     QMUIAssetDownloadStatusSucceed,     // 下载成功或资源本来已经在本地
     QMUIAssetDownloadStatusDownloading, // 下载中
     QMUIAssetDownloadStatusCanceled,    // 取消下载
     QMUIAssetDownloadStatusFailed,      // 下载失败
-} QMUIAssetDownloadStatus; // 从 iCloud 请求 Asset 大图的状态
+};
 
 
 @class ALAsset;
@@ -63,8 +65,7 @@ typedef enum {
  *  异步请求 Asset 的原图，包含了系统照片“编辑”功能处理后的效果（剪裁，旋转和滤镜等），可能会有网络请求
  *
  *  @param completion        完成请求后调用的 block，参数中包含了请求的原图以及图片信息，在 iOS 8.0 或以上版本中，
- *                           这个 block 会被多次调用，其中第一次调用获取到的尺寸很小的低清图，然后不断调用，直接获取到高清图，
- *                           获取到高清图后 QMUIAsset 会缓存起这张高清图，这时 block 中的第二个参数（图片信息）返回的为 nil。
+ *                           这个 block 会被多次调用，其中第一次调用获取到的尺寸很小的低清图，然后不断调用，直到获取到高清图。
  *  @param phProgressHandler 处理请求进度的 handler，不在主线程上执行，在 block 中修改 UI 时注意需要手工放到主线程处理。
  *
  *  @wraning iOS 8.0 以下中并没有异步请求预览图的接口，因此实际上为同步请求，这时 block 中的第二个参数（图片信息）返回的为 nil。
@@ -88,8 +89,7 @@ typedef enum {
  *  异步请求 Asset 的预览图，可能会有网络请求
  *
  *  @param completion        完成请求后调用的 block，参数中包含了请求的预览图以及图片信息，在 iOS 8.0 或以上版本中，
- *                           这个 block 会被多次调用，其中第一次调用获取到的尺寸很小的低清图，然后不断调用，直接获取到高清图，
- *                           获取到高清图后 QMUIAsset 会缓存起这张高清图，这时 block 中的第二个参数（图片信息）返回的为 nil。
+ *                           这个 block 会被多次调用，其中第一次调用获取到的尺寸很小的低清图，然后不断调用，直到获取到高清图。
  *  @param phProgressHandler 处理请求进度的 handler，不在主线程上执行，在 block 中修改 UI 时注意需要手工放到主线程处理。
  *
  *  @wraning iOS 8.0 以下中并没有异步请求预览图的接口，因此实际上为同步请求，这时 block 中的第二个参数（图片信息）返回的为 nil。

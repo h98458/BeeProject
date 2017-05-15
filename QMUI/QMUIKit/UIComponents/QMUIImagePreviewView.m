@@ -8,7 +8,7 @@
 
 #import "QMUIImagePreviewView.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUICollectionViewPagingLayout.h"
 #import "QMUIZoomImageView.h"
 #import "NSObject+QMUI.h"
@@ -53,23 +53,34 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        
-        _collectionViewLayout = [[QMUICollectionViewPagingLayout alloc] initWithStyle:QMUICollectionViewPagingLayoutStyleDefault];
-        self.collectionViewLayout.allowsMultipleItemScroll = NO;
-        
-        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMakeWithSize(frame.size) collectionViewLayout:self.collectionViewLayout];
-        self.collectionView.delegate = self;
-        self.collectionView.dataSource = self;
-        self.collectionView.backgroundColor = UIColorClear;
-        self.collectionView.showsHorizontalScrollIndicator = NO;
-        self.collectionView.showsVerticalScrollIndicator = NO;
-        self.collectionView.scrollsToTop = NO;
-        [self.collectionView registerClass:[QMUIImagePreviewCell class] forCellWithReuseIdentifier:@"cell"];
-        [self addSubview:self.collectionView];
-        
-        self.loadingColor = UIColorWhite;
+        [self didInitializedWithFrame:frame];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitializedWithFrame:self.frame];
+    }
+    return self;
+}
+
+- (void)didInitializedWithFrame:(CGRect)frame {
+    _collectionViewLayout = [[QMUICollectionViewPagingLayout alloc] initWithStyle:QMUICollectionViewPagingLayoutStyleDefault];
+    self.collectionViewLayout.allowsMultipleItemScroll = NO;
+    
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMakeWithSize(frame.size) collectionViewLayout:self.collectionViewLayout];
+    self.collectionView.delegate = self;
+    self.collectionView.dataSource = self;
+    self.collectionView.backgroundColor = UIColorClear;
+    self.collectionView.showsHorizontalScrollIndicator = NO;
+    self.collectionView.showsVerticalScrollIndicator = NO;
+    self.collectionView.scrollsToTop = NO;
+    self.collectionView.decelerationRate = UIScrollViewDecelerationRateFast;
+    [self.collectionView registerClass:[QMUIImagePreviewCell class] forCellWithReuseIdentifier:@"cell"];
+    [self addSubview:self.collectionView];
+    
+    self.loadingColor = UIColorWhite;
 }
 
 - (void)layoutSubviews {
@@ -167,10 +178,10 @@
     
     // 在滑动过临界点的那一次才去调用 delegate，避免过于频繁的调用
     BOOL isFirstDidScroll = self.previousIndexWhenScrolling == 0;
-    BOOL turnPageToRight = betweenOrEqualf(self.previousIndexWhenScrolling, floorf(index) + 0.5, index);
-    BOOL turnPageToLeft = betweenOrEqualf(index, floorf(index) + 0.5, self.previousIndexWhenScrolling);
+    BOOL turnPageToRight = betweenOrEqual(self.previousIndexWhenScrolling, floor(index) + 0.5, index);
+    BOOL turnPageToLeft = betweenOrEqual(index, floor(index) + 0.5, self.previousIndexWhenScrolling);
     if (!isFirstDidScroll && (turnPageToRight || turnPageToLeft)) {
-        index = roundf(index);
+        index = round(index);
         if (0 <= index && index < [self.collectionView numberOfItemsInSection:0]) {
             
             // 不调用 setter，避免又走一次 scrollToItem

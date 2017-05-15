@@ -29,47 +29,21 @@ QMUI iOS 是一个致力于提高项目 UI 开发效率的解决方案，其设�
 
 提供高效的工具方法，包括设备信息、动态字体、键盘管理、状态栏管理等，可以解决各种常见场景并大幅度提升开发效率。
 
-## 如何安装
-有三种方式可以使用QMUI，分别是：
-
-- 使用CocoaPods
-- 使用Carthage
-- 将QMUI作为子项目
-
-### 使用 CocoaPods
-#### Podfile
-```
-platform :ios, '7.0'
-pod 'QMUIKit', '~>1.1.4'
-```
-如果你的项目支持 iOS 8+，建议使用QMUI的动态库：
-
-```
-platform :ios, '8.0'
-use_frameworks!
-```
-### 使用 Carthage (iOS 8+)
-
-[Carthage](https://github.com/Carthage/Carthage) 是一个比CocoaPods更加轻量的包管理器，如何安装请查考[这里](https://github.com/Carthage/Carthage)。
-
-#### Cartfile
-```
-github "QMUI/QMUI_iOS" ~>1.1.4
-```
-### 作为子项目
-具体请查看我们的[开始使用](http://qmuiteam.com/ios/page/start.html#qw_downloadForUse)文档。
-
-## 相关文档
-
-接口文档：[http://qmuiteam.com/ios/page/document.html](http://qmuiteam.com/ios/page/document.html)
-
-下载Demo：[https://github.com/QMUI/QMUIDemo_iOS](https://github.com/QMUI/QMUIDemo_iOS)
-
 ## 支持iOS版本
-QMUI iOS 支持 iOS 7+
+QMUI iOS 支持 iOS 7+。
+
+## 使用方法
+请查看官网的[开始使用](http://qmuiteam.com/ios/page/start.html)。
+
+## 代码示例
+请下载 QMUI Demo：[https://github.com/QMUI/QMUIDemo_iOS](https://github.com/QMUI/QMUIDemo_iOS)。
 
 ## 注意事项
-目前QMUI提供的控件，大部分都是还没有支持AutoLayout布局，考虑到AutoLayout的普遍性，我们会尽快让所有的控件都支持AutoLayout。另外，因为QMUI还没有检查在Swift下的使用情况，所以如果在Swift下使用QMUI遇到问题，可以反馈给我们，我们会加快速度兼容适配。
+- 关于 AutoLayout：目前暂未支持，考虑到 AutoLayout 的普及性，我们将会尽快支持。
+- 关于 xib / storyboard：现已全面支持。
+- 关于 Swift：暂未检查过在 Swift 下使用 QMUI 的问题，如遇到问题可以反馈给我们，我们会尽快兼容。
 
 ## 其他
-建议搭配 QMUI 专用的 Code Snippets 使用： [https://github.com/QMUI/qmui-ios-codesnippets](https://github.com/QMUI/qmui-ios-codesnippets)
+建议搭配 QMUI 专用的 Code Snippets 及文件模板使用：
+1. [QMUI_iOS_CodeSnippets](https://github.com/QMUI/QMUI_iOS_CodeSnippets)
+2. [QMUI_iOS_Templates](https://github.com/QMUI/QMUI_iOS_Templates)

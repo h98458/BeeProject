@@ -11,15 +11,6 @@
 
 @interface UINavigationController (QMUI) <UIGestureRecognizerDelegate>
 
-/**
- *  当前是否正在 push controller<br/>
- *  @warning 注意这个属性虽然是在分类里面定义的，但是它却是在QMUINavigationController里面赋值的，所以对于没有使用QMUINavigationController的情况，这个属性是不太安全的。
- */
-@property(nonatomic, assign) BOOL qmui_isPushingViewController;
-
-/// @warning 2016-07-18 这个属性不安全，暂时别用。在快速返回多个界面的时候，系统只会调用一次popViewControllerAnimated:，导致这个标志位错误。建议使用[self.navigationController.viewControllers containsObject:self]来区分是否在popping
-@property(nonatomic, assign) BOOL qmui_isPoppingViewController;
-
 /// 获取<b>rootViewController</b>
 - (nullable UIViewController *)qmui_rootViewController;
 
@@ -40,7 +31,7 @@
 /// 是否可以`popViewController`，可以在这个返回里面做一些业务的判断，比如点击返回按钮的时候，如果输入框里面的文本没有满足条件的则可以弹alert并且返回NO
 - (BOOL)canPopViewController;
 
-/// 当自定义了`leftBarButtonItem`按钮之后，系统的手势返回就失效了。可以通过`forceEnableInteractivePopGestureRecognizer`来决定要不要把那个手势返回强制加回来
+/// 当自定义了`leftBarButtonItem`按钮之后，系统的手势返回就失效了。可以通过`forceEnableInteractivePopGestureRecognizer`来决定要不要把那个手势返回强制加回来。当 interactivePopGestureRecognizer.enabled = NO 或者当前`UINavigationController`堆栈的viewControllers小于2的时候此方法无效。
 - (BOOL)forceEnableInteractivePopGestureRecognizer;
 
 @end

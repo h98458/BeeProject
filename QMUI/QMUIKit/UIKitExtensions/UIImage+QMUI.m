@@ -8,14 +8,15 @@
 
 #import "UIImage+QMUI.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "UIBezierPath+QMUI.h"
+#import "UIColor+QMUI.h"
 #import <Accelerate/Accelerate.h>
 
 CG_INLINE CGSize
 CGSizeFlatSpecificScale(CGSize size, float scale) {
-    return CGSizeMake(flatfSpecificScale(size.width, scale), flatfSpecificScale(size.height, scale));
+    return CGSizeMake(flatSpecificScale(size.width, scale), flatSpecificScale(size.height, scale));
 }
 
 @implementation UIImage (QMUI)
@@ -32,26 +33,24 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
 }
 
 - (UIColor *)qmui_averageColor {
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char rgba[4];
-    CGContextRef context = CGBitmapContextCreate(rgba, 1, 1, 8, 4, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGContextInspectContext(context);
-    CGContextDrawImage(context, CGRectMake(0, 0, 1, 1), self.CGImage);
-    CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context);
-    if(rgba[3] > 0) {
-        CGFloat alpha = ((CGFloat)rgba[3]) / 255.0;
-        CGFloat multiplier = alpha / 255.0;
-        return [UIColor colorWithRed:((CGFloat)rgba[0]) * multiplier
-                               green:((CGFloat)rgba[1]) * multiplier
-                                blue:((CGFloat)rgba[2]) * multiplier
-                               alpha:alpha];
-    } else {
-        return [UIColor colorWithRed:((CGFloat)rgba[0])/255.0
-                               green:((CGFloat)rgba[1])/255.0
-                                blue:((CGFloat)rgba[2])/255.0
-                               alpha:((CGFloat)rgba[3])/255.0];
-    }
+	unsigned char rgba[4] = {};
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef context = CGBitmapContextCreate(rgba, 1, 1, 8, 4, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+	CGContextInspectContext(context);
+	CGContextDrawImage(context, CGRectMake(0, 0, 1, 1), self.CGImage);
+	CGColorSpaceRelease(colorSpace);
+	CGContextRelease(context);
+	if(rgba[3] > 0) {
+		return [UIColor colorWithRed:((CGFloat)rgba[0] / rgba[3])
+			                   green:((CGFloat)rgba[1] / rgba[3])
+			                    blue:((CGFloat)rgba[2] / rgba[3])
+			                   alpha:((CGFloat)rgba[3] / 255.0)];
+	} else {
+		return [UIColor colorWithRed:((CGFloat)rgba[0]) / 255.0
+                               green:((CGFloat)rgba[1]) / 255.0
+								blue:((CGFloat)rgba[2]) / 255.0
+							   alpha:((CGFloat)rgba[3]) / 255.0];
+	}
 }
 
 - (UIImage *)qmui_grayImage {
@@ -59,39 +58,64 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
     NSInteger width = self.size.width * self.scale;
     NSInteger height = self.size.height * self.scale;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
-    CGContextRef context = CGBitmapContextCreate(nil, width, height, 8, 0, colorSpace, kCGBitmapByteOrderDefault);
+    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, colorSpace, kCGBitmapByteOrderDefault);
     CGContextInspectContext(context);
     CGColorSpaceRelease(colorSpace);
     if (context == NULL) {
         return nil;
     }
-    CGContextDrawImage(context,CGRectMake(0, 0, width, height), self.CGImage);
+    CGRect imageRect = CGRectMake(0, 0, width, height);
+    CGContextDrawImage(context, imageRect, self.CGImage);
+    
+    UIImage *grayImage = nil;
     CGImageRef imageRef = CGBitmapContextCreateImage(context);
-    UIImage *qmui_grayImage = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
-    CGImageRelease(imageRef);
+    if (self.qmui_opaque) {
+        grayImage = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
+    } else {
+        CGContextRef alphaContext = CGBitmapContextCreate(NULL, width, height, 8, 0, nil, kCGImageAlphaOnly);
+        CGContextDrawImage(alphaContext, imageRect, self.CGImage);
+        CGImageRef mask = CGBitmapContextCreateImage(alphaContext);
+		CGImageRef maskedGrayImageRef = CGImageCreateWithMask(imageRef, mask);
+        grayImage = [UIImage imageWithCGImage:maskedGrayImageRef scale:self.scale orientation:self.imageOrientation];
+        CGImageRelease(mask);
+		CGImageRelease(maskedGrayImageRef);
+        CGContextRelease(alphaContext);
+        
+        // 用 CGBitmapContextCreateImage 方式创建出来的图片，CGImageAlphaInfo 总是为 CGImageAlphaInfoNone，导致 qmui_opaque 与原图不一致，所以这里再做多一步
+        UIGraphicsBeginImageContextWithOptions(grayImage.size, NO, grayImage.scale);
+        [grayImage drawInRect:imageRect];
+        grayImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
     CGContextRelease(context);
-    return qmui_grayImage;
+    CGImageRelease(imageRef);
+    return grayImage;
 }
 
 - (UIImage *)qmui_imageWithAlpha:(CGFloat)alpha {
     UIGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextInspectContext(context);
-    CGRect area = CGRectMake(0, 0, self.size.width, self.size.height);
-    CGContextScaleCTM(context, 1, -1);
-    CGContextTranslateCTM(context, 0, -area.size.height);
-    CGContextSetBlendMode(context, kCGBlendModeMultiply);
-    CGContextSetAlpha(context, alpha);
-    CGContextDrawImage(context, area, self.CGImage);
+    CGRect drawingRect = CGRectMake(0, 0, self.size.width, self.size.height);
+    [self drawInRect:drawingRect blendMode:kCGBlendModeNormal alpha:alpha];
     UIImage *imageOut = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return imageOut;
 }
 
+- (BOOL)qmui_opaque {
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(self.CGImage);
+    BOOL opaque = alphaInfo == kCGImageAlphaNoneSkipLast
+                  || alphaInfo == kCGImageAlphaNoneSkipFirst
+                  || alphaInfo == kCGImageAlphaNone;
+    return opaque;
+}
+
 - (UIImage *)qmui_imageWithTintColor:(UIColor *)tintColor {
     UIImage *imageIn = self;
     CGRect rect = CGRectMake(0, 0, imageIn.size.width, imageIn.size.height);
-    UIGraphicsBeginImageContextWithOptions(imageIn.size, NO, imageIn.scale);
+    UIGraphicsBeginImageContextWithOptions(imageIn.size, self.qmui_opaque, imageIn.scale);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextInspectContext(context);
     CGContextTranslateCTM(context, 0, imageIn.size.height);
@@ -105,10 +129,23 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
     return imageOut;
 }
 
+- (UIImage *)qmui_imageWithBlendColor:(UIColor *)blendColor {
+    UIImage *coloredImage = [self qmui_imageWithTintColor:blendColor];
+    CIFilter *filter = [CIFilter filterWithName:@"CIColorBlendMode"];
+    [filter setValue:[CIImage imageWithCGImage:self.CGImage] forKey:kCIInputBackgroundImageKey];
+    [filter setValue:[CIImage imageWithCGImage:coloredImage.CGImage] forKey:kCIInputImageKey];
+    CIImage *outputImage = filter.outputImage;
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CGImageRef imageRef = [context createCGImage:outputImage fromRect:outputImage.extent];
+    UIImage *resultImage = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
+    CGImageRelease(imageRef);
+    return resultImage;
+}
+
 - (UIImage *)qmui_imageWithImageAbove:(UIImage *)image atPoint:(CGPoint)point {
     UIImage *imageIn = self;
     UIImage *imageOut = nil;
-    UIGraphicsBeginImageContextWithOptions(imageIn.size, NO, imageIn.scale);
+    UIGraphicsBeginImageContextWithOptions(imageIn.size, self.qmui_opaque, imageIn.scale);
     [imageIn drawInRect:CGRectMakeWithSize(imageIn.size)];
     [image drawAtPoint:point];
     imageOut = UIGraphicsGetImageFromCurrentImageContext();
@@ -118,7 +155,7 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
 
 - (UIImage *)qmui_imageWithSpacingExtensionInsets:(UIEdgeInsets)extension {
     CGSize contextSize = CGSizeMake(self.size.width + UIEdgeInsetsGetHorizontalValue(extension), self.size.height + UIEdgeInsetsGetVerticalValue(extension));
-    UIGraphicsBeginImageContextWithOptions(contextSize, NO, self.scale);
+    UIGraphicsBeginImageContextWithOptions(contextSize, self.qmui_opaque, self.scale);
     [self drawAtPoint:CGPointMake(extension.left, extension.top)];
     UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -127,12 +164,21 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
 
 - (UIImage *)qmui_imageWithClippedRect:(CGRect)rect {
     CGContextInspectSize(rect.size);
+    CGRect imageRect = CGRectMakeWithSize(self.size);
+    if (CGRectContainsRect(rect, imageRect)) {
+        // 要裁剪的区域比自身大，所以不用裁剪直接返回自身即可
+        return self;
+    }
     // 由于CGImage是以pixel为单位来计算的，而UIImage是以point为单位，所以这里需要将传进来的point转换为pixel
     CGRect scaledRect = CGRectApplyScale(rect, self.scale);
     CGImageRef imageRef = CGImageCreateWithImageInRect(self.CGImage, scaledRect);
-    UIImage *imageOut = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:UIImageOrientationUp];
+    UIImage *imageOut = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
     CGImageRelease(imageRef);
     return imageOut;
+}
+
+- (UIImage *)qmui_imageWithScaleToSize:(CGSize)size {
+    return [self qmui_imageWithScaleToSize:size contentMode:UIViewContentModeScaleAspectFit];
 }
 
 - (UIImage *)qmui_imageWithScaleToSize:(CGSize)size contentMode:(UIViewContentMode)contentMode {
@@ -142,13 +188,6 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
 - (UIImage *)qmui_imageWithScaleToSize:(CGSize)size contentMode:(UIViewContentMode)contentMode scale:(CGFloat)scale {
     size = CGSizeFlatSpecificScale(size, scale);
     CGContextInspectSize(size);
-    UIGraphicsBeginImageContextWithOptions(size, NO, scale);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextInspectContext(context);
-    // 翻转坐标系，因为UIKit和Quartz的坐标系不一样
-    CGContextTranslateCTM(context, 0.0, size.height);
-    CGContextScaleCTM(context, 1.0, -1.0);
-    CGContextSetBlendMode(context, kCGBlendModeCopy);
     CGSize imageSize = self.size;
     CGRect drawingRect = CGRectZero;
     
@@ -161,15 +200,17 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
         if (contentMode == UIViewContentModeScaleAspectFill) {
             ratio = fmaxf(horizontalRatio, verticalRatio);
         } else {
-            // 默认按UIViewContentModeScaleAspectFit
+            // 默认按 UIViewContentModeScaleAspectFit
             ratio = fminf(horizontalRatio, verticalRatio);
         }
-        drawingRect.size.width = flatfSpecificScale(imageSize.width * ratio, scale);
-        drawingRect.size.height = flatfSpecificScale(imageSize.height * ratio, scale);
-        drawingRect = CGRectSetXY(drawingRect, flatfSpecificScale((size.width - CGRectGetWidth(drawingRect)) / 2.0, scale), flatfSpecificScale((size.height - CGRectGetHeight(drawingRect)) / 2, scale));
+        drawingRect.size.width = flatSpecificScale(imageSize.width * ratio, scale);
+        drawingRect.size.height = flatSpecificScale(imageSize.height * ratio, scale);
     }
     
-    CGContextDrawImage(context, drawingRect, self.CGImage);
+    UIGraphicsBeginImageContextWithOptions(drawingRect.size, self.qmui_opaque, scale);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextInspectContext(context);
+    [self drawInRect:drawingRect];
     UIImage *imageOut = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return imageOut;
@@ -241,7 +282,7 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
     UIImage *oldImage = self;
     UIImage *resultImage;
     CGRect rect = CGRectMake(0, 0, oldImage.size.width, oldImage.size.height);
-    UIGraphicsBeginImageContextWithOptions(oldImage.size, NO, oldImage.scale);
+    UIGraphicsBeginImageContextWithOptions(oldImage.size, self.qmui_opaque, oldImage.scale);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextInspectContext(context);
     [oldImage drawInRect:rect];
@@ -303,10 +344,6 @@ CGSizeFlatSpecificScale(CGSize size, float scale) {
         return [self qmui_imageWithBorderColor:borderColor path:path];
     }
     return self;
-}
-
-void dataProviderReleaseCallback (void *info, const void *data, size_t size) {
-    free((void *)data);
 }
 
 - (UIImage *)qmui_imageWithMaskImage:(UIImage *)maskImage usingMaskImageMode:(BOOL)usingMaskImageMode {
@@ -403,9 +440,10 @@ void dataProviderReleaseCallback (void *info, const void *data, size_t size) {
     CGContextInspectSize(size);
     
     UIImage *resultImage = nil;
-    color = color ? color : UIColorWhite;
-    
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+    color = color ? color : UIColorClear;
+
+	BOOL opaque = (cornerRadius == 0.0 && [color qmui_alpha] == 1.0);
+    UIGraphicsBeginImageContextWithOptions(size, opaque, 0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetFillColorWithColor(context, color.CGColor);
     
@@ -447,7 +485,7 @@ void dataProviderReleaseCallback (void *info, const void *data, size_t size) {
     CGContextInspectSize(size);
     
     UIImage *resultImage = nil;
-    tintColor = tintColor ? tintColor : UIColorWhite;
+    tintColor = tintColor ? : [UIColor colorWithRed:1 green:1 blue:1 alpha:1];
     
     
     UIGraphicsBeginImageContextWithOptions(size, NO, 0);
@@ -564,13 +602,9 @@ void dataProviderReleaseCallback (void *info, const void *data, size_t size) {
 }
 
 + (UIImage *)qmui_imageWithView:(UIView *)view {
-    CGContextInspectSize(view.frame.size);
-    // 老方式，因为drawViewHierarchyInRect:afterScreenUpdates:有一定的使用条件，有些情况下不一定截得到图，所有这种情况下可以使用老方式。
-    // 如果可以用新方式，则建议使用新方式，性能上好很多
+    CGContextInspectSize(view.bounds.size);
     UIImage *resultImage = nil;
-    // 第二个参数是不透明度，这里默认设置为YES，不用出来alpha通道的事情，可以提高性能
-    // 第三个参数是scale，设置为0的时候，意思是使用屏幕的scale
-    UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0);
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, 0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextInspectContext(context);
     [view.layer renderInContext:context];
@@ -580,18 +614,13 @@ void dataProviderReleaseCallback (void *info, const void *data, size_t size) {
 }
 
 + (UIImage *)qmui_imageWithView:(UIView *)view afterScreenUpdates:(BOOL)afterUpdates {
-    // iOS7截图新方式，性能好会好一点，不过不一定适用，因为这个方法的使用条件是：界面要已经render完，否则截到得图将会是empty。
-    // 如果是iOS6调用这个接口，将会使用老的方式。
-    if ([view respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
-        UIImage *resultImage = nil;
-        UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0.0);
-        [view drawViewHierarchyInRect:CGRectMake(0, 0, CGRectGetWidth(view.frame), CGRectGetHeight(view.frame)) afterScreenUpdates:afterUpdates];
-        resultImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        return resultImage;
-    } else {
-        return [self qmui_imageWithView:view];
-    }
+    // iOS 7 截图新方式，性能好会好一点，不过不一定适用，因为这个方法的使用条件是：界面要已经render完，否则截到得图将会是empty。
+    UIImage *resultImage = nil;
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, 0);
+    [view drawViewHierarchyInRect:CGRectMakeWithSize(view.bounds.size) afterScreenUpdates:afterUpdates];
+    resultImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return resultImage;
 }
 
 @end

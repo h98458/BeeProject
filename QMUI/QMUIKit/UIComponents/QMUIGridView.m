@@ -8,7 +8,7 @@
 
 #import "QMUIGridView.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "CALayer+QMUI.h"
 
 @interface QMUIGridView ()
@@ -20,14 +20,9 @@
 
 - (instancetype)initWithFrame:(CGRect)frame column:(NSInteger)column rowHeight:(CGFloat)rowHeight {
     if (self = [super initWithFrame:frame]) {
+        [self didInitialized];
         self.columnCount = column;
         self.rowHeight = rowHeight;
-        self.separatorColor = UIColorSeparator;
-        
-        self.separatorLayer = [CAShapeLayer layer];
-        [self.separatorLayer qmui_removeDefaultAnimations];
-        self.separatorLayer.hidden = YES;
-        [self.layer addSublayer:self.separatorLayer];
     }
     return self;
 }
@@ -38,6 +33,22 @@
 
 - (instancetype)initWithFrame:(CGRect)frame {
     return [self initWithFrame:frame column:0 rowHeight:0];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitialized];
+    }
+    return self;
+}
+
+- (void)didInitialized {
+    self.separatorLayer = [CAShapeLayer layer];
+    [self.separatorLayer qmui_removeDefaultAnimations];
+    self.separatorLayer.hidden = YES;
+    [self.layer addSublayer:self.separatorLayer];
+    
+    self.separatorColor = UIColorSeparator;
 }
 
 - (void)setSeparatorWidth:(CGFloat)separatorWidth {
@@ -53,7 +64,7 @@
 
 // 返回最接近平均列宽的值，保证其为整数，因此所有columnWidth加起来可能比总宽度要小
 - (CGFloat)stretchColumnWidth {
-    return floorf((CGRectGetWidth(self.bounds) - self.separatorWidth * (self.columnCount - 1)) / self.columnCount);
+    return floor((CGRectGetWidth(self.bounds) - self.separatorWidth * (self.columnCount - 1)) / self.columnCount);
 }
 
 - (NSInteger)rowCount {

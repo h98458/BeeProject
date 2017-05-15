@@ -8,9 +8,10 @@
 
 #import "QMUIHelper.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "UIViewController+QMUI.h"
 #import <AVFoundation/AVFoundation.h>
+#import "NSString+QMUI.h"
 
 
 NSString *const QMUIResourcesMainBundleName = @"QMUIResources.bundle";
@@ -130,7 +131,7 @@ NSString *const QMUIResourcesQQEmotionBundleName = @"QMUI_QQEmotion.bundle";
 
 static char kAssociatedObjectKey_KeyboardVisible;
 - (void)setKeyboardVisible:(BOOL)argv {
-    objc_setAssociatedObject(self, &kAssociatedObjectKey_KeyboardVisible, @(argv), OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(self, &kAssociatedObjectKey_KeyboardVisible, @(argv), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)isKeyboardVisible {
@@ -305,7 +306,7 @@ static NSInteger isIPadPro = -1;
 static NSInteger isIPod = -1;
 + (BOOL)isIPod {
     if (isIPod < 0) {
-        isIPod = [[[UIDevice currentDevice] model] isEqualToString:@"iPod touch"] ? 1 : 0;
+        isIPod = [[[UIDevice currentDevice] model] qmui_includesString:@"iPod touch"] ? 1 : 0;
     }
     return isIPod > 0;
 }
@@ -313,7 +314,7 @@ static NSInteger isIPod = -1;
 static NSInteger isIPhone = -1;
 + (BOOL)isIPhone {
     if (isIPhone < 0) {
-        isIPhone = [[[UIDevice currentDevice] model] isEqualToString:@"iPhone"] ? 1 : 0;
+        isIPhone = [[[UIDevice currentDevice] model] qmui_includesString:@"iPhone"] ? 1 : 0;
     }
     return isIPhone > 0;
 }

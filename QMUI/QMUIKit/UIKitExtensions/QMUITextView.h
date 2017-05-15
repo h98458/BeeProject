@@ -13,7 +13,18 @@
 @protocol QMUITextViewDelegate <UITextViewDelegate>
 
 @optional
-- (void)textView:(QMUITextView *)textView contentHeightAfterTextChanged:(CGFloat)height;
+/**
+ *  输入框高度发生变化时的回调，仅当 `autoResizable` 属性为 YES 时才有效。
+ *  @note 只有当内容高度与当前输入框的高度不一致时才会调用到这里，所以无需在内部做高度是否变化的判断。
+ */
+- (void)textView:(QMUITextView *)textView newHeightAfterTextChanged:(CGFloat)height;
+
+/**
+ *  用户点击键盘的 return 按钮时的回调（return 按钮本质上是输入换行符“\n”）
+ *  @return 返回 YES 表示程序认为当前的点击是为了进行类似“发送”之类的操作，所以最终“\n”并不会被输入到文本框里。返回 NO 表示程序认为当前的点击只是普通的输入，所以会继续询问 textView:shouldChangeTextInRange:replacementText: 方法，根据该方法的返回结果来决定是否要输入这个“\n”。
+ *  @see maximumTextLength
+ */
+- (BOOL)textViewShouldReturn:(QMUITextView *)textView;
 
 /**
  *  配合 `maximumTextLength` 属性使用，在输入文字超过限制时被调用。例如如果你的输入框在按下键盘“Done”按键时做一些发送操作，就可以在这个方法里判断 [replacementText isEqualToString:@"\n"]。
@@ -30,50 +41,42 @@
 /**
  *  自定义 UITextView，提供的特性如下：
  *
- *  1. 支持给输入框的文字设置加粗，倾斜，下划线等富文本样式。
- *  2. 支持 placeholder 并支持更改 placeholderColor；若使用了富文本文字，则 placeholder 的样式也会跟随文字的样式（除了 placeholder 颜色）
- *  3. 支持在文字发生变化时计算内容高度并通知 delegate （需打开autoResizable属性）。
- *  4. 支持限制输入的文本的最大长度，默认不限制。
- *  5. 修复了 iOS7 及以后的版本，系统的 UITextView 在输入最后一行文本时光标跑出可视区域的bug。
+ *  1. 支持 placeholder 并支持更改 placeholderColor；若使用了富文本文字，则 placeholder 的样式也会跟随文字的样式（除了 placeholder 颜色）
+ *  2. 支持在文字发生变化时计算内容高度并通知 delegate （需打开 autoResizable 属性）。
+ *  3. 支持限制输入的文本的最大长度，默认不限制。
+ *  4. 修正系统 UITextView 在输入时自然换行的时候，contentOffset 的滚动位置没有考虑 textContainerInset.bottom
  */
 @interface QMUITextView : UITextView<QMUITextViewDelegate>
 
 @property(nonatomic, weak) id<QMUITextViewDelegate> delegate;
 
 /**
- *  输入框的文本样式，默认为nil。
- */
-@property(nonatomic, copy) NSDictionary<NSString *, id> *textAttributes;
-
-/**
  *  当通过 `setText:`、`setAttributedText:`等方式修改文字时，是否应该自动触发 `UITextViewDelegate` 里的 `textView:shouldChangeTextInRange:replacementText:`、 `textViewDidChange:` 方法
  *
  *  默认为YES（注意系统的 UITextView 对这种行为默认是 NO）
- *
- *  @see textAttributes
  */
-@property(nonatomic, assign) BOOL shouldResponseToProgrammaticallyTextChanges;
+@property(nonatomic, assign) IBInspectable BOOL shouldResponseToProgrammaticallyTextChanges;
 
 /**
  *  显示允许输入的最大文字长度，默认为 NSUIntegerMax，也即不限制长度。
  */
-@property(nonatomic, assign) NSUInteger maximumTextLength;
+@property(nonatomic, assign) IBInspectable NSUInteger maximumTextLength;
 
 /**
  *  在使用 maximumTextLength 功能的时候，是否应该把文字长度按照 [NSString (QMUI) qmui_lengthWhenCountingNonASCIICharacterAsTwo] 的方法来计算。
  *  默认为 NO。
  */
-@property(nonatomic, assign) BOOL shouldCountingNonASCIICharacterAsTwo;
+@property(nonatomic, assign) IBInspectable BOOL shouldCountingNonASCIICharacterAsTwo;
 
 /**
  *   placeholder 的文字
  */
-@property(nonatomic, copy) NSString *placeholder;
+@property(nonatomic, copy) IBInspectable NSString *placeholder;
 
 /**
  *  placeholder 文字的颜色
  */
-@property(nonatomic, strong) UIColor *placeholderColor;
+@property(nonatomic, strong) IBInspectable UIColor *placeholderColor;
 
 /**
  *  placeholder 在默认位置上的偏移（默认位置会自动根据 textContainerInset、contentInset 来调整）
@@ -82,22 +85,8 @@
 
 /**
  *  是否支持自动拓展高度，默认为NO
- *  @see textView:contentHeightAfterTextChanged:
+ *  @see textView:newHeightAfterTextChanged:
  */
 @property(nonatomic, assign) BOOL autoResizable;
-
-@end
-
-@interface UITextView (QMUI)
-
-/**
- *  设置 text 会让 selectedTextRange 跳到最后一个字符，导致在中间修改文字后光标会跳到末尾，所以设置前要保存一下，设置后恢复过来
- */
-- (void)qmui_setTextKeepingSelectedRange:(NSString *)text;
-
-/**
- *  设置 attributedText 会让 selectedTextRange 跳到最后一个字符，导致在中间修改文字后光标会跳到末尾，所以设置前要保存一下，设置后恢复过来
- */
-- (void)qmui_setAttributedTextKeepingSelectedRange:(NSAttributedString *)attributedText;
 
 @end

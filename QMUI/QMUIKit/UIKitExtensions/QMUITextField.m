@@ -8,12 +8,14 @@
 
 #import "QMUITextField.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "NSString+QMUI.h"
+#import "UITextField+QMUI.h"
 
-@interface QMUITextField ()<QMUITextFieldDelegate>
+@interface QMUITextField () <QMUITextFieldDelegate, UIScrollViewDelegate>
 
-@property(nonatomic, weak) id<QMUITextFieldDelegate> originalDelegate;
+@property(nonatomic, weak) id <QMUITextFieldDelegate> originalDelegate;
+
 @end
 
 @implementation QMUITextField
@@ -23,15 +25,26 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.delegate = self;
+        [self didInitialized];
         self.tintColor = TextFieldTintColor;
-        self.placeholderColor = UIColorPlaceholder;
-        self.textInsets = TextFieldTextInsets;
-        self.shouldResponseToProgrammaticallyTextChanges = YES;
-        self.maximumTextLength = NSUIntegerMax;
-        [self addTarget:self action:@selector(handleTextChangeEvent:) forControlEvents:UIControlEventEditingChanged];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitialized];
+    }
+    return self;
+}
+
+- (void)didInitialized {
+    self.delegate = self;
+    self.placeholderColor = UIColorPlaceholder;
+    self.textInsets = TextFieldTextInsets;
+    self.shouldResponseToProgrammaticallyTextChanges = YES;
+    self.maximumTextLength = NSUIntegerMax;
+    [self addTarget:self action:@selector(handleTextChangeEvent:) forControlEvents:UIControlEventEditingChanged];
 }
 
 - (void)dealloc {
@@ -70,6 +83,46 @@
 - (CGRect)editingRectForBounds:(CGRect)bounds {
     bounds = CGRectInsetEdges(bounds, self.textInsets);
     return [super editingRectForBounds:bounds];
+}
+
+#pragma mark - TextPosition
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    // 以下代码修复系统的 UITextField 在 iOS 10 下的 bug：https://github.com/QMUI/QMUI_iOS/issues/64
+    if (IOS_VERSION < 10.0) {
+        return;
+    }
+    
+    UIScrollView *scrollView = self.subviews.firstObject;
+    if (![scrollView isKindOfClass:[UIScrollView class]]) {
+        return;
+    }
+    
+    // 默认 delegate 是为 nil 的，所以我们才利用 delegate 修复这 个 bug，如果哪一天 delegate 不为 nil，就先不处理了。
+    if (scrollView.delegate) {
+        return;
+    }
+    
+    scrollView.delegate = self;
+}
+
+#pragma mark - <UIScrollViewDelegate>
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    // 以下代码修复系统的 UITextField 在 iOS 10 下的 bug：https://github.com/QMUI/QMUI_iOS/issues/64
+    
+    if (scrollView != self.subviews.firstObject) {
+        return;
+    }
+    
+    CGFloat lineHeight = ((NSParagraphStyle *)self.defaultTextAttributes[NSParagraphStyleAttributeName]).minimumLineHeight;
+    lineHeight = lineHeight ?: ((UIFont *)self.defaultTextAttributes[NSFontAttributeName]).lineHeight;
+    if (scrollView.contentSize.height > ceil(lineHeight) && scrollView.contentOffset.y < 0) {
+        scrollView.contentOffset = CGPointMake(scrollView.contentOffset.x, 0);
+    }
 }
 
 - (void)setText:(NSString *)text {
@@ -164,6 +217,11 @@
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector {
+    // 修复 iOS 7 下将 UITextField.delegate 指向自身时会死循环的问题
+    if (IOS_VERSION < 8.0 && [NSStringFromSelector(aSelector) hasPrefix:@"customOverlayC"]) {
+        return NO;
+    }
+    
     BOOL a = [super respondsToSelector:aSelector];
     BOOL c = [self.originalDelegate respondsToSelector:aSelector];
     BOOL result = a || c;
@@ -179,20 +237,10 @@
             textField.text = [textField.text qmui_substringAvoidBreakingUpCharacterSequencesWithRange:NSMakeRange(0, textField.maximumTextLength) lessValue:YES countingNonASCIICharacterAsTwo:self.shouldCountingNonASCIICharacterAsTwo];
             
             if ([self.originalDelegate respondsToSelector:@selector(textField:didPreventTextChangeInRange:replacementString:)]) {
-                [self.originalDelegate textField:textField didPreventTextChangeInRange:textField.selectedRange replacementString:nil];
+                [self.originalDelegate textField:textField didPreventTextChangeInRange:textField.qmui_selectedRange replacementString:nil];
             }
         }
     }
-}
-
-@end
-
-@implementation UITextField (QMUI)
-
-- (NSRange)selectedRange {
-    NSInteger location = [self offsetFromPosition:self.beginningOfDocument toPosition:self.selectedTextRange.start];
-    NSInteger length = [self offsetFromPosition:self.selectedTextRange.start toPosition:self.selectedTextRange.end];
-    return NSMakeRange(location, length);
 }
 
 @end

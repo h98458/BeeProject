@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 /**
- *  做类似 css 里的 float:left 的布局，自行使用 addSubview: 将子 View 添加进来即可。
+ *  做类似 CSS 里的 float:left 的布局，自行使用 addSubview: 将子 View 添加进来即可。
+ *
+ *  支持通过 `contentMode` 属性修改子 View 的对齐方式，目前仅支持 `UIViewContentModeLeft` 和 `UIViewContentModeRight`，默认为 `UIViewContentModeLeft`。
  */
 @interface QMUIFloatLayoutView : UIView
 
@@ -21,12 +23,12 @@
 /**
  *  item 的最小宽高，默认为 CGSizeZero，也即不限制。
  */
-@property(nonatomic, assign) CGSize minimumItemSize;
+@property(nonatomic, assign) IBInspectable CGSize minimumItemSize;
 
 /**
  *  item 的最大宽高，默认为 CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)，也即不限制
  */
-@property(nonatomic, assign) CGSize maximumItemSize;
+@property(nonatomic, assign) IBInspectable CGSize maximumItemSize;
 
 /**
  *  item 之间的间距，默认为 UIEdgeInsetsZero。

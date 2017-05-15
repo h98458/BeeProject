@@ -8,7 +8,7 @@
 
 #import "QMUIMoreOperationController.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "CALayer+QMUI.h"
 
@@ -120,37 +120,44 @@ static QMUIMoreOperationController *moreOperationViewControllerAppearance;
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        if (moreOperationViewControllerAppearance) {
-            self.contentBackgroundColor = [QMUIMoreOperationController appearance].contentBackgroundColor;
-            self.contentSeparatorColor = [QMUIMoreOperationController appearance].contentSeparatorColor;
-            self.cancelButtonBackgroundColor = [QMUIMoreOperationController appearance].cancelButtonBackgroundColor;
-            self.cancelButtonTitleColor = [QMUIMoreOperationController appearance].cancelButtonTitleColor;
-            self.cancelButtonSeparatorColor = [QMUIMoreOperationController appearance].cancelButtonSeparatorColor;
-            self.itemBackgroundColor = [QMUIMoreOperationController appearance].itemBackgroundColor;
-            self.itemTitleColor = [QMUIMoreOperationController appearance].itemTitleColor;
-            self.itemTitleFont = [QMUIMoreOperationController appearance].itemTitleFont;
-            self.cancelButtonFont = [QMUIMoreOperationController appearance].cancelButtonFont;
-            self.contentEdgeMargin = [QMUIMoreOperationController appearance].contentEdgeMargin;
-            self.contentMaximumWidth = [QMUIMoreOperationController appearance].contentMaximumWidth;
-            self.contentCornerRadius = [QMUIMoreOperationController appearance].contentCornerRadius;
-            self.itemMarginTop = [QMUIMoreOperationController appearance].itemMarginTop;
-            self.topScrollViewInsets = [QMUIMoreOperationController appearance].topScrollViewInsets;
-            self.bottomScrollViewInsets = [QMUIMoreOperationController appearance].bottomScrollViewInsets;
-            self.cancelButtonHeight = [QMUIMoreOperationController appearance].cancelButtonHeight;
-            self.cancelButtonMarginTop = [QMUIMoreOperationController appearance].cancelButtonMarginTop;
-        }
-        self.importantItems = [[NSMutableArray alloc] init];
-        self.normalItems = [[NSMutableArray alloc] init];
-        self.importantShowingItems = [[NSMutableArray alloc] init];
-        self.normalShowingItems = [[NSMutableArray alloc] init];
-        
-        [self initSubviewsIfNeeded];
+        [self didInitialized];
     }
     return self;
 }
 
-- (void)dealloc {
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitialized];
+    }
+    return self;
+}
+
+- (void)didInitialized {
+    if (moreOperationViewControllerAppearance) {
+        self.contentBackgroundColor = [QMUIMoreOperationController appearance].contentBackgroundColor;
+        self.contentSeparatorColor = [QMUIMoreOperationController appearance].contentSeparatorColor;
+        self.cancelButtonBackgroundColor = [QMUIMoreOperationController appearance].cancelButtonBackgroundColor;
+        self.cancelButtonTitleColor = [QMUIMoreOperationController appearance].cancelButtonTitleColor;
+        self.cancelButtonSeparatorColor = [QMUIMoreOperationController appearance].cancelButtonSeparatorColor;
+        self.itemBackgroundColor = [QMUIMoreOperationController appearance].itemBackgroundColor;
+        self.itemTitleColor = [QMUIMoreOperationController appearance].itemTitleColor;
+        self.itemTitleFont = [QMUIMoreOperationController appearance].itemTitleFont;
+        self.cancelButtonFont = [QMUIMoreOperationController appearance].cancelButtonFont;
+        self.contentEdgeMargin = [QMUIMoreOperationController appearance].contentEdgeMargin;
+        self.contentMaximumWidth = [QMUIMoreOperationController appearance].contentMaximumWidth;
+        self.contentCornerRadius = [QMUIMoreOperationController appearance].contentCornerRadius;
+        self.itemMarginTop = [QMUIMoreOperationController appearance].itemMarginTop;
+        self.topScrollViewInsets = [QMUIMoreOperationController appearance].topScrollViewInsets;
+        self.bottomScrollViewInsets = [QMUIMoreOperationController appearance].bottomScrollViewInsets;
+        self.cancelButtonHeight = [QMUIMoreOperationController appearance].cancelButtonHeight;
+        self.cancelButtonMarginTop = [QMUIMoreOperationController appearance].cancelButtonMarginTop;
+    }
+    self.importantItems = [[NSMutableArray alloc] init];
+    self.normalItems = [[NSMutableArray alloc] init];
+    self.importantShowingItems = [[NSMutableArray alloc] init];
+    self.normalShowingItems = [[NSMutableArray alloc] init];
     
+    [self initSubviewsIfNeeded];
 }
 
 - (void)setContentBackgroundColor:(UIColor *)contentBackgroundColor {
@@ -349,7 +356,7 @@ static QMUIMoreOperationController *moreOperationViewControllerAppearance;
     NSInteger maxItemCountInScrollView = MAX(self.importantShowingItems.count, self.normalShowingItems.count);
     NSInteger itemCountForTotallyVisibleItem = isLargeSreen ? 4 : 3;
     
-    CGFloat itemWidth = flatf((contentWidth - fmaxf(UIEdgeInsetsGetHorizontalValue(importantScrollViewInsets), UIEdgeInsetsGetHorizontalValue(normaltScrollViewInsets))) / itemCountForTotallyVisibleItem) - (maxItemCountInScrollView > itemCountForTotallyVisibleItem ? (isLargeSreen ? 8 : 12) : 0);
+    CGFloat itemWidth = flat((contentWidth - fmaxf(UIEdgeInsetsGetHorizontalValue(importantScrollViewInsets), UIEdgeInsetsGetHorizontalValue(normaltScrollViewInsets))) / itemCountForTotallyVisibleItem) - (maxItemCountInScrollView > itemCountForTotallyVisibleItem ? (isLargeSreen ? 8 : 12) : 0);
     
     CGFloat itemMaxHeight = 0;
     CGFloat itemMaxX = 0;
@@ -364,7 +371,7 @@ static QMUIMoreOperationController *moreOperationViewControllerAppearance;
                 itemMaxHeight = CGRectGetHeight(itemView.bounds);
             }
         }
-        self.importantItemsScrollView.contentSize = CGSizeMake(flatf(itemMaxX), flatf(itemMaxHeight));
+        self.importantItemsScrollView.contentSize = CGSizeMake(flat(itemMaxX), flat(itemMaxHeight));
         self.importantItemsScrollView.contentInset = importantScrollViewInsets;
         self.importantItemsScrollView.contentOffset = CGPointMake(-self.importantItemsScrollView.contentInset.left, -self.importantItemsScrollView.contentInset.top);
         self.importantItemsScrollView.frame = CGRectFlatted(CGRectMake(0, 0, contentWidth, UIEdgeInsetsGetVerticalValue(self.importantItemsScrollView.contentInset) + self.importantItemsScrollView.contentSize.height));
@@ -389,7 +396,7 @@ static QMUIMoreOperationController *moreOperationViewControllerAppearance;
                 itemMaxHeight = CGRectGetHeight(itemView.bounds);
             }
         }
-        self.normalItemsScrollView.contentSize = CGSizeMake(flatf(itemMaxX), flatf(itemMaxHeight));
+        self.normalItemsScrollView.contentSize = CGSizeMake(flat(itemMaxX), flat(itemMaxHeight));
         self.normalItemsScrollView.contentInset = normaltScrollViewInsets;
         self.normalItemsScrollView.frame = CGRectFlatted(CGRectMake(0, layoutOriginY, contentWidth, UIEdgeInsetsGetVerticalValue(self.normalItemsScrollView.contentInset) + self.normalItemsScrollView.contentSize.height));
         self.normalItemsScrollView.contentOffset = CGPointMake(-self.normalItemsScrollView.contentInset.left, -self.normalItemsScrollView.contentInset.top);
@@ -595,7 +602,7 @@ static QMUIMoreOperationController *moreOperationViewControllerAppearance;
     }
 }
 
-#pragma mark - <QMUIModalPresentationContentViewProtocol>
+#pragma mark - <QMUIModalPresentationContentViewControllerProtocol>
 
 - (CGSize)preferredContentSizeInModalPresentationViewController:(QMUIModalPresentationViewController *)controller limitSize:(CGSize)limitSize {
     return controller.view.bounds.size;

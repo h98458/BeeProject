@@ -10,6 +10,10 @@
 		C001DFA31D0C3CF20008D9DC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C001DFA21D0C3CF20008D9DC /* main.m */; };
 		C001DFA61D0C3CF20008D9DC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C001DFA51D0C3CF20008D9DC /* AppDelegate.m */; };
 		C001DFAE1D0C3CF20008D9DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C001DFAD1D0C3CF20008D9DC /* Assets.xcassets */; };
+		C011F8131EC9409800BB4DE0 /* QDThemeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C011F80B1EC9409800BB4DE0 /* QDThemeManager.m */; };
+		C011F8141EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.m in Sources */ = {isa = PBXBuildFile; fileRef = C011F80E1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.m */; };
+		C011F8151EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.m in Sources */ = {isa = PBXBuildFile; fileRef = C011F8101EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.m */; };
+		C011F8161EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.m in Sources */ = {isa = PBXBuildFile; fileRef = C011F8121EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.m */; };
 		C066927C1E3441ED009B53BC /* QMUIConfigurationTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = C06692741E3441ED009B53BC /* QMUIConfigurationTemplate.m */; };
 		C066928F1E3445EB009B53BC /* QMUIResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C066928E1E3445EB009B53BC /* QMUIResources.bundle */; };
 		C06692981E344B7F009B53BC /* QDCommonUI.m in Sources */ = {isa = PBXBuildFile; fileRef = C06692931E344B7F009B53BC /* QDCommonUI.m */; };
@@ -498,6 +502,15 @@
 		C001DFA51D0C3CF20008D9DC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		C001DFAD1D0C3CF20008D9DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C001DFB21D0C3CF20008D9DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C011F80A1EC9409800BB4DE0 /* QDThemeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QDThemeManager.h; sourceTree = "<group>"; };
+		C011F80B1EC9409800BB4DE0 /* QDThemeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QDThemeManager.m; sourceTree = "<group>"; };
+		C011F80C1EC9409800BB4DE0 /* QDThemeProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QDThemeProtocol.h; sourceTree = "<group>"; };
+		C011F80D1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QMUIConfigurationTemplateGrapefruit.h; sourceTree = "<group>"; };
+		C011F80E1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QMUIConfigurationTemplateGrapefruit.m; sourceTree = "<group>"; };
+		C011F80F1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QMUIConfigurationTemplateGrass.h; sourceTree = "<group>"; };
+		C011F8101EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QMUIConfigurationTemplateGrass.m; sourceTree = "<group>"; };
+		C011F8111EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QMUIConfigurationTemplatePinkRose.h; sourceTree = "<group>"; };
+		C011F8121EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QMUIConfigurationTemplatePinkRose.m; sourceTree = "<group>"; };
 		C06692731E3441ED009B53BC /* QMUIConfigurationTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QMUIConfigurationTemplate.h; sourceTree = "<group>"; };
 		C06692741E3441ED009B53BC /* QMUIConfigurationTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QMUIConfigurationTemplate.m; sourceTree = "<group>"; };
 		C066928E1E3445EB009B53BC /* QMUIResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = QMUIResources.bundle; path = QMUI/QMUIKit/UIResources/QMUIResources.bundle; sourceTree = SOURCE_ROOT; };
@@ -1430,6 +1443,15 @@
 		C06692721E3441ED009B53BC /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				C011F80A1EC9409800BB4DE0 /* QDThemeManager.h */,
+				C011F80B1EC9409800BB4DE0 /* QDThemeManager.m */,
+				C011F80C1EC9409800BB4DE0 /* QDThemeProtocol.h */,
+				C011F80D1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.h */,
+				C011F80E1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.m */,
+				C011F80F1EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.h */,
+				C011F8101EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.m */,
+				C011F8111EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.h */,
+				C011F8121EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.m */,
 				C06692731E3441ED009B53BC /* QMUIConfigurationTemplate.h */,
 				C06692741E3441ED009B53BC /* QMUIConfigurationTemplate.m */,
 			);
@@ -3253,6 +3275,7 @@
 				C0F5581D1D0C53AB00B6D80B /* CXMLNamespaceNode.m in Sources */,
 				C0F5571B1D0C53AB00B6D80B /* Bee_Assertion.mm in Sources */,
 				C0C03BB91D0FDE91008DDF74 /* Placeholder.m in Sources */,
+				C011F8141EC9409800BB4DE0 /* QMUIConfigurationTemplateGrapefruit.m in Sources */,
 				C0F5556B1D0C53AB00B6D80B /* Bee_UIImageView.m in Sources */,
 				C0F557A21D0C53AB00B6D80B /* Bee_HTTPRouter2.m in Sources */,
 				C0F554F91D0C53AB00B6D80B /* UIView+BeeUIStyle.m in Sources */,
@@ -3279,6 +3302,7 @@
 				C0F557E41D0C53AB00B6D80B /* ASIHTTPRequest.m in Sources */,
 				C0F556F71D0C53AB00B6D80B /* Bee_ActiveBuilder.m in Sources */,
 				C0F555BC1D0C53AB00B6D80B /* UIView+PanGesture.m in Sources */,
+				C011F8151EC9409800BB4DE0 /* QMUIConfigurationTemplateGrass.m in Sources */,
 				C0F5544B1D0C53AB00B6D80B /* Bee_CLI.mm in Sources */,
 				C0F557721D0C53AB00B6D80B /* Bee_Language.m in Sources */,
 				C0F554511D0C53AB00B6D80B /* Bee_Controller.mm in Sources */,
@@ -3465,6 +3489,7 @@
 				C0F5564C1D0C53AB00B6D80B /* UIView+LayoutParser.m in Sources */,
 				C0F555231D0C53AB00B6D80B /* Bee_UIAnimationZoom.m in Sources */,
 				C0F5579C1D0C53AB00B6D80B /* Bee_HTTPRequest2.m in Sources */,
+				C011F8161EC9409800BB4DE0 /* QMUIConfigurationTemplatePinkRose.m in Sources */,
 				C0F554541D0C53AB00B6D80B /* Bee_Message.mm in Sources */,
 				C0F554BA1D0C53AB00B6D80B /* UIView+UIViewController.m in Sources */,
 				C0F5546F1D0C53AB00B6D80B /* NSObject+BeeMessage.mm in Sources */,
@@ -3495,6 +3520,7 @@
 				C0F557F31D0C53AB00B6D80B /* FMDatabasePool.m in Sources */,
 				C0F555741D0C53AB00B6D80B /* Bee_UIMenuController.m in Sources */,
 				C0F557571D0C53AB00B6D80B /* NSObject+BeeNotification.mm in Sources */,
+				C011F8131EC9409800BB4DE0 /* QDThemeManager.m in Sources */,
 				C0F554481D0C53AB00B6D80B /* Bee_Version.mm in Sources */,
 				C0F555BF1D0C53AB00B6D80B /* UIView+PinchGesture.m in Sources */,
 				C0B837DF1D0C5E740084D6C8 /* RKTabItem.m in Sources */,

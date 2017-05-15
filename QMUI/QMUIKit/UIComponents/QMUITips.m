@@ -8,7 +8,7 @@
 
 #import "QMUITips.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "QMUIToastContentView.h"
 #import "QMUIToastBackgroundView.h"
@@ -211,7 +211,7 @@
 }
 
 + (QMUITips *)showInfo:(NSString *)text inView:(UIView *)view {
-    return [self showInfo:text inView:view];
+    return [self showInfo:text detailText:nil inView:view hideAfterDelay:0];
 }
 
 + (QMUITips *)showInfo:(NSString *)text inView:(UIView *)view hideAfterDelay:(NSTimeInterval)delay {

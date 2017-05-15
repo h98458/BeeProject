@@ -8,7 +8,7 @@
 
 #import "QMUIDialogViewController.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "QMUIButton.h"
 #import "QMUITextField.h"
@@ -48,7 +48,7 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
             dialogViewControllerAppearance.footerViewHeight = 48;
             dialogViewControllerAppearance.footerViewBackgroundColor = UIColorWhite;
             
-            dialogViewControllerAppearance.buttonTitleAttributeds = @{NSForegroundColorAttributeName: UIColorBlue, NSKernAttributeName: @2};
+            dialogViewControllerAppearance.buttonTitleAttributes = @{NSForegroundColorAttributeName: UIColorBlue, NSKernAttributeName: @2};
             dialogViewControllerAppearance.buttonHighlightedBackgroundColor = [UIColorBlue colorWithAlphaComponent:.25];
         }
     });
@@ -66,26 +66,24 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
 
 @implementation QMUIDialogViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        if (dialogViewControllerAppearance) {
-            self.cornerRadius = [QMUIDialogViewController appearance].cornerRadius;
-            self.contentViewMargins = [QMUIDialogViewController appearance].contentViewMargins;
-            self.titleTintColor = [QMUIDialogViewController appearance].titleTintColor;
-            self.titleLabelFont = [QMUIDialogViewController appearance].titleLabelFont;
-            self.titleLabelTextColor = [QMUIDialogViewController appearance].titleLabelTextColor;
-            self.subTitleLabelFont = [QMUIDialogViewController appearance].subTitleLabelFont;
-            self.subTitleLabelTextColor = [QMUIDialogViewController appearance].subTitleLabelTextColor;
-            self.headerFooterSeparatorColor = [QMUIDialogViewController appearance].headerFooterSeparatorColor;
-            self.headerViewHeight = [QMUIDialogViewController appearance].headerViewHeight;
-            self.headerViewBackgroundColor = [QMUIDialogViewController appearance].headerViewBackgroundColor;
-            self.footerViewHeight = [QMUIDialogViewController appearance].footerViewHeight;
-            self.footerViewBackgroundColor = [QMUIDialogViewController appearance].footerViewBackgroundColor;
-            self.buttonTitleAttributeds = [QMUIDialogViewController appearance].buttonTitleAttributeds;
-            self.buttonHighlightedBackgroundColor = [QMUIDialogViewController appearance].buttonHighlightedBackgroundColor;
-        }
+- (void)didInitialized {
+    [super didInitialized];
+    if (dialogViewControllerAppearance) {
+        self.cornerRadius = [QMUIDialogViewController appearance].cornerRadius;
+        self.contentViewMargins = [QMUIDialogViewController appearance].contentViewMargins;
+        self.titleTintColor = [QMUIDialogViewController appearance].titleTintColor;
+        self.titleLabelFont = [QMUIDialogViewController appearance].titleLabelFont;
+        self.titleLabelTextColor = [QMUIDialogViewController appearance].titleLabelTextColor;
+        self.subTitleLabelFont = [QMUIDialogViewController appearance].subTitleLabelFont;
+        self.subTitleLabelTextColor = [QMUIDialogViewController appearance].subTitleLabelTextColor;
+        self.headerFooterSeparatorColor = [QMUIDialogViewController appearance].headerFooterSeparatorColor;
+        self.headerViewHeight = [QMUIDialogViewController appearance].headerViewHeight;
+        self.headerViewBackgroundColor = [QMUIDialogViewController appearance].headerViewBackgroundColor;
+        self.footerViewHeight = [QMUIDialogViewController appearance].footerViewHeight;
+        self.footerViewBackgroundColor = [QMUIDialogViewController appearance].footerViewBackgroundColor;
+        self.buttonTitleAttributes = [QMUIDialogViewController appearance].buttonTitleAttributes;
+        self.buttonHighlightedBackgroundColor = [QMUIDialogViewController appearance].buttonHighlightedBackgroundColor;
     }
-    return self;
 }
 
 - (void)setCornerRadius:(CGFloat)cornerRadius {
@@ -153,13 +151,13 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
     self.footerView.backgroundColor = footerViewBackgroundColor;
 }
 
-- (void)setButtonTitleAttributeds:(NSDictionary<NSString *,id> *)buttonTitleAttributeds {
-    _buttonTitleAttributeds = buttonTitleAttributeds;
+- (void)setButtonTitleAttributes:(NSDictionary<NSString *,id> *)buttonTitleAttributes {
+    _buttonTitleAttributes = buttonTitleAttributes;
     if (self.cancelButton) {
-        [self.cancelButton setAttributedTitle:[[NSAttributedString alloc] initWithString:[self.cancelButton attributedTitleForState:UIControlStateNormal].string attributes:buttonTitleAttributeds] forState:UIControlStateNormal];
+        [self.cancelButton setAttributedTitle:[[NSAttributedString alloc] initWithString:[self.cancelButton attributedTitleForState:UIControlStateNormal].string attributes:buttonTitleAttributes] forState:UIControlStateNormal];
     }
     if (self.submitButton) {
-        [self.submitButton setAttributedTitle:[[NSAttributedString alloc] initWithString:[self.submitButton attributedTitleForState:UIControlStateNormal].string attributes:buttonTitleAttributeds] forState:UIControlStateNormal];
+        [self.submitButton setAttributedTitle:[[NSAttributedString alloc] initWithString:[self.submitButton attributedTitleForState:UIControlStateNormal].string attributes:buttonTitleAttributes] forState:UIControlStateNormal];
     }
 }
 
@@ -173,10 +171,12 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
     }
 }
 
+BeginIgnoreClangWarning(-Wobjc-missing-super-calls)
 - (void)setNavigationItemsIsInEditMode:(BOOL)isInEditMode animated:(BOOL)animated {
-    // 不使用父类继承，从而避免把 self.titleView 放到 navigationItem 上
+    // 不继承父类的实现，从而避免把 self.titleView 放到 navigationItem 上
 //    [super setNavigationItemsIsInEditMode:isInEditMode animated:animated];
 }
+EndIgnoreClangWarning
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -255,7 +255,7 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
             button.frame = self.footerView.bounds;
             self.buttonSeparatorLayer.hidden = YES;
         } else {
-            CGFloat buttonWidth = flatf(CGRectGetWidth(self.footerView.bounds) / buttonCount);
+            CGFloat buttonWidth = flat(CGRectGetWidth(self.footerView.bounds) / buttonCount);
             self.cancelButton.frame = CGRectMake(0, 0, buttonWidth, CGRectGetHeight(self.footerView.bounds));
             self.submitButton.frame = CGRectMake(CGRectGetMaxX(self.cancelButton.frame), 0, CGRectGetWidth(self.footerView.bounds) - CGRectGetMaxX(self.cancelButton.frame), CGRectGetHeight(self.footerView.bounds));
             self.buttonSeparatorLayer.hidden = NO;
@@ -290,6 +290,10 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
 }
 
 - (void)addCancelButtonWithText:(NSString *)buttonText block:(void (^)(QMUIDialogViewController *))block {
+    if (_cancelButton) {
+        [_cancelButton removeFromSuperview];
+    }
+    
     _cancelButton = [self generateButtonWithText:buttonText];
     [self.cancelButton addTarget:self action:@selector(handleCancelButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -301,6 +305,10 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
 }
 
 - (void)addSubmitButtonWithText:(NSString *)buttonText block:(void (^)(QMUIDialogViewController *dialogViewController))block {
+    if (_submitButton) {
+        [_submitButton removeFromSuperview];
+    }
+    
     _submitButton = [self generateButtonWithText:buttonText];
     [self.submitButton addTarget:self action:@selector(handleSubmitButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -316,7 +324,7 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
     button.titleLabel.font = UIFontBoldMake(15);
     button.adjustsTitleTintColorAutomatically = YES;
     button.highlightedBackgroundColor = self.buttonHighlightedBackgroundColor;
-    [button setAttributedTitle:[[NSAttributedString alloc] initWithString:buttonText attributes:self.buttonTitleAttributeds] forState:UIControlStateNormal];
+    [button setAttributedTitle:[[NSAttributedString alloc] initWithString:buttonText attributes:self.buttonTitleAttributes] forState:UIControlStateNormal];
     return button;
 }
 
@@ -360,7 +368,7 @@ static QMUIDialogViewController *dialogViewControllerAppearance;
     }];
 }
 
-#pragma mark - <QMUIModalPresentationContentViewProtocol>
+#pragma mark - <QMUIModalPresentationContentViewControllerProtocol>
 
 - (CGSize)preferredContentSizeInModalPresentationViewController:(QMUIModalPresentationViewController *)controller limitSize:(CGSize)limitSize {
     if (!self.hasCustomContentView) {
@@ -388,15 +396,13 @@ const NSInteger QMUIDialogSelectionViewControllerSelectedItemIndexNone = -1;
 
 @implementation QMUIDialogSelectionViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        self.selectedItemIndex = QMUIDialogSelectionViewControllerSelectedItemIndexNone;
-        self.selectedItemIndexes = [[NSMutableSet alloc] init];
-        BeginIgnoreAvailabilityWarning
-        [self loadViewIfNeeded];
-        EndIgnoreAvailabilityWarning
-    }
-    return self;
+- (void)didInitialized {
+    [super didInitialized];
+    self.selectedItemIndex = QMUIDialogSelectionViewControllerSelectedItemIndexNone;
+    self.selectedItemIndexes = [[NSMutableSet alloc] init];
+    BeginIgnoreAvailabilityWarning
+    [self loadViewIfNeeded];
+    EndIgnoreAvailabilityWarning
 }
 
 - (void)initSubviews {
@@ -539,7 +545,7 @@ const NSInteger QMUIDialogSelectionViewControllerSelectedItemIndexNone = -1;
     }
 }
 
-#pragma mark - <QMUIModalPresentationContentViewProtocol>
+#pragma mark - <QMUIModalPresentationContentViewControllerProtocol>
 
 - (CGSize)preferredContentSizeInModalPresentationViewController:(QMUIModalPresentationViewController *)controller limitSize:(CGSize)limitSize {
     CGFloat footerViewHeight = !self.footerView.hidden ? CGRectGetHeight(self.footerView.frame) : 0;
@@ -558,14 +564,12 @@ const NSInteger QMUIDialogSelectionViewControllerSelectedItemIndexNone = -1;
 
 @implementation QMUIDialogTextFieldViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        self.enablesSubmitButtonAutomatically = YES;
-        BeginIgnoreAvailabilityWarning
-        [self loadViewIfNeeded];
-        EndIgnoreAvailabilityWarning
-    }
-    return self;
+- (void)didInitialized {
+    [super didInitialized];
+    self.enablesSubmitButtonAutomatically = YES;
+    BeginIgnoreAvailabilityWarning
+    [self loadViewIfNeeded];
+    EndIgnoreAvailabilityWarning
 }
 
 - (void)initSubviews {
@@ -632,7 +636,7 @@ const NSInteger QMUIDialogSelectionViewControllerSelectedItemIndexNone = -1;
     [self updateSubmitButtonEnables];
 }
 
-#pragma mark - <QMUIModalPresentationContentViewProtocol>
+#pragma mark - <QMUIModalPresentationContentViewControllerProtocol>
 
 - (CGSize)preferredContentSizeInModalPresentationViewController:(QMUIModalPresentationViewController *)controller limitSize:(CGSize)limitSize {
     CGFloat textFieldHeight = 56;

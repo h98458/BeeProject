@@ -10,6 +10,8 @@
 
 @interface QDUIHelper : NSObject
 
++ (void)forceInterfaceOrientationPortrait;
+
 @end
 
 
@@ -60,4 +62,10 @@
 
 + (NSString *)humanReadableFileSize:(long long)size;
     
+@end
+
+
+@interface QDUIHelper (Theme)
+
++ (UIImage *)navigationBarBackgroundImageWithThemeColor:(UIColor *)color;
 @end

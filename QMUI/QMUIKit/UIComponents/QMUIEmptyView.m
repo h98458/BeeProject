@@ -8,7 +8,7 @@
 
 #import "QMUIEmptyView.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "UIControl+QMUI.h"
 #import "NSParagraphStyle+QMUI.h"
 
@@ -23,41 +23,65 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.scrollView = [[UIScrollView alloc] init];
-        self.scrollView.showsVerticalScrollIndicator = NO;
-        self.scrollView.showsHorizontalScrollIndicator = NO;
-        self.scrollView.scrollsToTop = NO;
-        self.scrollView.contentInset = UIEdgeInsetsMake(0, 10, 0, 10); // 避免 label 直接撑满到屏幕两边，不好看
-        [self addSubview:self.scrollView];
-        
-        _contentView = [[UIView alloc] init];
-        [self.scrollView addSubview:self.contentView];
-        
-        _loadingView = (UIView<QMUIEmptyViewLoadingViewProtocol> *)[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-        ((UIActivityIndicatorView *)self.loadingView).hidesWhenStopped = NO;    // 此控件是通过loadingView.hidden属性来控制显隐的，如果UIActivityIndicatorView的hidesWhenStopped属性设置为YES的话，则手动设置它的hidden属性就会失效，因此这里要置为NO
-        [self.contentView addSubview:self.loadingView];
-        
-        _imageView = [[UIImageView alloc] init];
-        self.imageView.contentMode = UIViewContentModeCenter;
-        [self.contentView addSubview:self.imageView];
-        
-        _textLabel = [[UILabel alloc] init];
-        self.textLabel.textAlignment = NSTextAlignmentCenter;
-        self.textLabel.numberOfLines = 0;
-        [self.contentView addSubview:self.textLabel];
-        
-        _detailTextLabel = [[UILabel alloc] init];
-        self.detailTextLabel.textAlignment = NSTextAlignmentCenter;
-        self.detailTextLabel.numberOfLines = 0;
-        [self.contentView addSubview:self.detailTextLabel];
-        
-        _actionButton = [[UIButton alloc] init];
-        self.actionButton.qmui_outsideEdge = UIEdgeInsetsMake(-20, -20, -20, -20);
-        [self.contentView addSubview:self.actionButton];
-        
-        
+        [self didInitialized];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitialized];
+    }
+    return self;
+}
+
+- (void)didInitialized {
+    // 系统默认会在view即将被add到window上时才设置这些值，这个时机有点晚了，因为我们可能在add到window之前就进行sizeThatFits计算或对view进行截图等操作，因此这里提前到init时就去做
+    QMUIEmptyView *appearance = [QMUIEmptyView appearance];
+    _imageViewInsets = appearance.imageViewInsets;
+    _loadingViewInsets = appearance.loadingViewInsets;
+    _textLabelInsets = appearance.textLabelInsets;
+    _detailTextLabelInsets = appearance.detailTextLabelInsets;
+    _actionButtonInsets = appearance.actionButtonInsets;
+    _verticalOffset = appearance.verticalOffset;
+    _textLabelFont = appearance.textLabelFont;
+    _detailTextLabelFont = appearance.detailTextLabelFont;
+    _actionButtonFont = appearance.actionButtonFont;
+    _textLabelTextColor = appearance.textLabelTextColor;
+    _detailTextLabelTextColor = appearance.detailTextLabelTextColor;
+    _actionButtonTitleColor = appearance.actionButtonTitleColor;
+    
+    self.scrollView = [[UIScrollView alloc] init];
+    self.scrollView.showsVerticalScrollIndicator = NO;
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    self.scrollView.scrollsToTop = NO;
+    self.scrollView.contentInset = UIEdgeInsetsMake(0, 10, 0, 10); // 避免 label 直接撑满到屏幕两边，不好看
+    [self addSubview:self.scrollView];
+    
+    _contentView = [[UIView alloc] init];
+    [self.scrollView addSubview:self.contentView];
+    
+    _loadingView = (UIView<QMUIEmptyViewLoadingViewProtocol> *)[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    ((UIActivityIndicatorView *)self.loadingView).hidesWhenStopped = NO;    // 此控件是通过loadingView.hidden属性来控制显隐的，如果UIActivityIndicatorView的hidesWhenStopped属性设置为YES的话，则手动设置它的hidden属性就会失效，因此这里要置为NO
+    [self.contentView addSubview:self.loadingView];
+    
+    _imageView = [[UIImageView alloc] init];
+    self.imageView.contentMode = UIViewContentModeCenter;
+    [self.contentView addSubview:self.imageView];
+    
+    _textLabel = [[UILabel alloc] init];
+    self.textLabel.textAlignment = NSTextAlignmentCenter;
+    self.textLabel.numberOfLines = 0;
+    [self.contentView addSubview:self.textLabel];
+    
+    _detailTextLabel = [[UILabel alloc] init];
+    self.detailTextLabel.textAlignment = NSTextAlignmentCenter;
+    self.detailTextLabel.numberOfLines = 0;
+    [self.contentView addSubview:self.detailTextLabel];
+    
+    _actionButton = [[UIButton alloc] init];
+    self.actionButton.qmui_outsideEdge = UIEdgeInsetsMake(-20, -20, -20, -20);
+    [self.contentView addSubview:self.actionButton];
 }
 
 - (void)layoutSubviews {

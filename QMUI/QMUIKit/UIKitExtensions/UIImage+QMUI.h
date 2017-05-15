@@ -61,6 +61,11 @@ typedef NS_OPTIONS(NSInteger, QMUIImageBorderPosition) {
 - (UIImage *)qmui_imageWithAlpha:(CGFloat)alpha;
 
 /**
+ *  判断一张图是否不存在 alpha 通道，注意 “不存在 alpha 通道” 不等价于 “不透明”。一张不透明的图有可能是存在 alpha 通道但 alpha 值为 1。
+ */
+- (BOOL)qmui_opaque;
+
+/**
  *  保持当前图片的形状不变，使用指定的颜色去重新渲染它，生成一张新图片并返回
  *
  *  @param tintColor 要用于渲染的新颜色
@@ -68,6 +73,17 @@ typedef NS_OPTIONS(NSInteger, QMUIImageBorderPosition) {
  *  @return 与当前图片形状一致但颜色与参数tintColor相同的新图片
  */
 - (UIImage *)qmui_imageWithTintColor:(UIColor *)tintColor;
+
+/**
+ *  以 CIColorBlendMode 的模式为当前图片叠加一个颜色，生成一张新图片并返回，在叠加过程中会保留图片内的纹理。
+ *
+ *  @param blendColor 要叠加的颜色
+ *
+ *  @return 基于当前图片纹理保持不变的情况下颜色变为指定的叠加颜色的新图片
+ *
+ *  @warning 这个方法可能比较慢，会卡住主线程，建议异步使用
+ */
+- (UIImage *)qmui_imageWithBlendColor:(UIColor *)blendColor;
 
 /**
  *  在当前图片的基础上叠加一张图片，并指定绘制叠加图片的起始位置
@@ -98,13 +114,32 @@ typedef NS_OPTIONS(NSInteger, QMUIImageBorderPosition) {
 - (UIImage *)qmui_imageWithClippedRect:(CGRect)rect;
 
 /**
- *  将原图按指定的UIViewContentMode缩放到指定的大小，返回处理完的图片
- *  @param size 最终希望的图片大小，以pt为单位
- *  @param contentMode 希望使用的缩放模式，默认是UIViewContentModeScaleAspectFit，也即保持宽高比例不变，不够的地方填充空白
+ *  将原图按 UIViewContentModeScaleAspectFit 的方式进行缩放，并返回缩放后的图片，处理完的图片的 scale 保持与原图一致。
+ *  @param size 缩放后的图片尺寸不超过这个尺寸
  *
- *  @return 处理完的图片，scale和原图一致
+ *  @return 处理完的图片
+ *  @see qmui_imageWithScaleToSize:contentMode:scale:
+ */
+- (UIImage *)qmui_imageWithScaleToSize:(CGSize)size;
+
+/**
+ *  将原图按指定的 UIViewContentMode 缩放到指定的大小，返回处理完的图片，处理完的图片的 scale 保持与原图一致
+ *  @param size 在这个约束的 size 内进行缩放后的大小，处理后返回的图片的 size 会根据 contentMode 不同而不同
+ *  @param contentMode 希望使用的缩放模式，目前仅支持 UIViewContentModeScaleToFill、UIViewContentModeScaleAspectFill、UIViewContentModeScaleAspectFit（默认）
+ *
+ *  @return 处理完的图片
+ *  @see qmui_imageWithScaleToSize:contentMode:scale:
  */
 - (UIImage *)qmui_imageWithScaleToSize:(CGSize)size contentMode:(UIViewContentMode)contentMode;
+
+/**
+ *  将原图按指定的 UIViewContentMode 缩放到指定的大小，返回处理完的图片
+ *  @param size 在这个约束的 size 内进行缩放后的大小，处理后返回的图片的 size 会根据 contentMode 不同而不同
+ *  @param contentMode 希望使用的缩放模式，目前仅支持 UIViewContentModeScaleToFill、UIViewContentModeScaleAspectFill、UIViewContentModeScaleAspectFit（默认）
+ *  @param scale 处理后返回的图片的 scale
+ *
+ *  @return 处理完的图片
+ */
 - (UIImage *)qmui_imageWithScaleToSize:(CGSize)size contentMode:(UIViewContentMode)contentMode scale:(CGFloat)scale;
 
 /**
@@ -247,21 +282,25 @@ typedef NS_OPTIONS(NSInteger, QMUIImageBorderPosition) {
 + (UIImage *)qmui_imageWithAttributedString:(NSAttributedString *)attributedString;
 
 /**
- 对传进来的 `UIView` 截图，生成一个 `UIImage` 并返回
+ 对传进来的 `UIView` 截图，生成一个 `UIImage` 并返回。注意这里使用的是 view.layer 来渲染图片内容。
 
  @param view 要截图的 `UIView`
 
  @return `UIView` 的截图
+ 
+ @warning UIView 的 transform 并不会在截图里生效
  */
 + (UIImage *)qmui_imageWithView:(UIView *)view;
 
 /**
- 对传进来的 `UIView` 截图，生成一个 `UIImage` 并返回
+ 对传进来的 `UIView` 截图，生成一个 `UIImage` 并返回。注意这里使用的是 iOS 7的系统截图接口。
 
  @param view         要截图的 `UIView`
  @param afterUpdates 是否要在界面更新完成后才截图
 
  @return `UIView` 的截图
+ 
+ @warning UIView 的 transform 并不会在截图里生效
  */
 + (UIImage *)qmui_imageWithView:(UIView *)view afterScreenUpdates:(BOOL)afterUpdates;
 

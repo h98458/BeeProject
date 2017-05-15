@@ -8,7 +8,7 @@
 
 #import "QMUIEmotionView.h"
 #import "QMUICommonDefines.h"
-#import "QMUIConfiguration.h"
+#import "QMUIConfigurationMacros.h"
 #import "QMUIHelper.h"
 #import "QMUIButton.h"
 #import "UIView+QMUI.h"
@@ -120,7 +120,7 @@
     [super layoutSubviews];
     // 删除按钮必定布局到最后一个表情的位置，且与表情上下左右居中
     [self.deleteButton sizeToFit];
-    self.deleteButton.frame = CGRectSetXY(self.deleteButton.frame, flatf(CGRectGetWidth(self.bounds) - self.padding.right - CGRectGetWidth(self.deleteButton.frame) - (self.emotionSize.width - CGRectGetWidth(self.deleteButton.frame)) / 2.0), flatf(CGRectGetHeight(self.bounds) - self.padding.bottom - CGRectGetHeight(self.deleteButton.frame) - (self.emotionSize.height - CGRectGetHeight(self.deleteButton.frame)) / 2.0));
+    self.deleteButton.frame = CGRectSetXY(self.deleteButton.frame, flat(CGRectGetWidth(self.bounds) - self.padding.right - CGRectGetWidth(self.deleteButton.frame) - (self.emotionSize.width - CGRectGetWidth(self.deleteButton.frame)) / 2.0), flat(CGRectGetHeight(self.bounds) - self.padding.bottom - CGRectGetHeight(self.deleteButton.frame) - (self.emotionSize.height - CGRectGetHeight(self.deleteButton.frame)) / 2.0));
 }
 
 - (void)drawRect:(CGRect)rect {
@@ -128,8 +128,8 @@
     
     CGSize contentSize = CGRectInsetEdges(self.bounds, self.padding).size;
     NSInteger emotionCountPerRow = (contentSize.width + self.minimumEmotionHorizontalSpacing) / (self.emotionSize.width + self.minimumEmotionHorizontalSpacing);
-    CGFloat emotionHorizontalSpacing = flatf((contentSize.width - emotionCountPerRow * self.emotionSize.width) / (emotionCountPerRow - 1));
-    CGFloat emotionVerticalSpacing = flatf((contentSize.height - self.numberOfRows * self.emotionSize.height) / (self.numberOfRows - 1));
+    CGFloat emotionHorizontalSpacing = flat((contentSize.width - emotionCountPerRow * self.emotionSize.width) / (emotionCountPerRow - 1));
+    CGFloat emotionVerticalSpacing = flat((contentSize.height - self.numberOfRows * self.emotionSize.height) / (self.numberOfRows - 1));
     
     CGPoint emotionOrigin = CGPointZero;
     for (NSInteger i = 0, l = self.emotions.count; i < l; i++) {
@@ -207,38 +207,48 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        
-        self.pagedEmotions = [[NSMutableArray alloc] init];
-        
-        _collectionViewLayout = [[UICollectionViewFlowLayout alloc] init];
-        self.collectionViewLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        self.collectionViewLayout.minimumLineSpacing = 0;
-        self.collectionViewLayout.minimumInteritemSpacing = 0;
-        self.collectionViewLayout.sectionInset = UIEdgeInsetsZero;
-        
-        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMakeWithSize(frame.size) collectionViewLayout:self.collectionViewLayout];
-        self.collectionView.backgroundColor = UIColorClear;
-        self.collectionView.scrollsToTop = NO;
-        self.collectionView.pagingEnabled = YES;
-        self.collectionView.showsHorizontalScrollIndicator = NO;
-        self.collectionView.dataSource = self;
-        self.collectionView.delegate = self;
-        [self.collectionView registerClass:[QMUIEmotionPageView class] forCellWithReuseIdentifier:@"page"];
-        [self addSubview:self.collectionView];
-        
-        _pageControl = [[UIPageControl alloc] init];
-        [self.pageControl addTarget:self action:@selector(handlePageControlEvent:) forControlEvents:UIControlEventValueChanged];
-        [self addSubview:self.pageControl];
-        
-        _sendButton = [[QMUIButton alloc] init];
-        [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
-        self.sendButton.contentEdgeInsets = UIEdgeInsetsMake(5, 17, 5, 17);
-        [self.sendButton sizeToFit];
-        [self addSubview:self.sendButton];
-        
-        self.debug = NO;
+        [self didInitializedWithFrame:frame];
     }
     return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self didInitializedWithFrame:CGRectZero];
+    }
+    return self;
+}
+
+- (void)didInitializedWithFrame:(CGRect)frame {
+    self.debug = NO;
+    
+    self.pagedEmotions = [[NSMutableArray alloc] init];
+    
+    _collectionViewLayout = [[UICollectionViewFlowLayout alloc] init];
+    self.collectionViewLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    self.collectionViewLayout.minimumLineSpacing = 0;
+    self.collectionViewLayout.minimumInteritemSpacing = 0;
+    self.collectionViewLayout.sectionInset = UIEdgeInsetsZero;
+    
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMakeWithSize(frame.size) collectionViewLayout:self.collectionViewLayout];
+    self.collectionView.backgroundColor = UIColorClear;
+    self.collectionView.scrollsToTop = NO;
+    self.collectionView.pagingEnabled = YES;
+    self.collectionView.showsHorizontalScrollIndicator = NO;
+    self.collectionView.dataSource = self;
+    self.collectionView.delegate = self;
+    [self.collectionView registerClass:[QMUIEmotionPageView class] forCellWithReuseIdentifier:@"page"];
+    [self addSubview:self.collectionView];
+    
+    _pageControl = [[UIPageControl alloc] init];
+    [self.pageControl addTarget:self action:@selector(handlePageControlEvent:) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:self.pageControl];
+    
+    _sendButton = [[QMUIButton alloc] init];
+    [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
+    self.sendButton.contentEdgeInsets = UIEdgeInsetsMake(5, 17, 5, 17);
+    [self.sendButton sizeToFit];
+    [self addSubview:self.sendButton];
 }
 
 - (void)setEmotions:(NSArray<QMUIEmotion *> *)emotions {
@@ -270,7 +280,7 @@
         CGFloat contentWidthInPage = CGRectGetWidth(self.collectionView.bounds) - UIEdgeInsetsGetHorizontalValue(self.paddingInPage);
         NSInteger maximumEmotionCountPerRowInPage = (contentWidthInPage + self.minimumEmotionHorizontalSpacing) / (self.emotionSize.width + self.minimumEmotionHorizontalSpacing);
         NSInteger maximumEmotionCountPerPage = maximumEmotionCountPerRowInPage * self.numberOfRowsPerPage - 1;// 删除按钮占一个表情位置
-        NSInteger pageCount = ceilf((CGFloat)self.emotions.count / (CGFloat)maximumEmotionCountPerPage);
+        NSInteger pageCount = ceil((CGFloat)self.emotions.count / (CGFloat)maximumEmotionCountPerPage);
         for (NSInteger i = 0; i < pageCount; i ++) {
             NSRange emotionRangeForPage = NSMakeRange(maximumEmotionCountPerPage * i, maximumEmotionCountPerPage);
             if (NSMaxRange(emotionRangeForPage) > self.emotions.count) {
@@ -332,7 +342,7 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     if (scrollView == self.collectionView) {
-        NSInteger currentPage = roundf(scrollView.contentOffset.x / CGRectGetWidth(scrollView.bounds));
+        NSInteger currentPage = round(scrollView.contentOffset.x / CGRectGetWidth(scrollView.bounds));
         self.pageControl.currentPage = currentPage;
     }
 }
