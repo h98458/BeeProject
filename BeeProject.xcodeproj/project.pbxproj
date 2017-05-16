@@ -25,8 +25,6 @@
 		C06692B41E345C46009B53BC /* QMUIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; };
 		C06692B51E345C91009B53BC /* QMUIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; };
 		C06692B61E345C91009B53BC /* QMUIKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C06692BE1E3463E5009B53BC /* QMUI_QQEmotion.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C06692BC1E3463E5009B53BC /* QMUI_QQEmotion.bundle */; };
-		C06692BF1E3463E5009B53BC /* QMUIResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C06692BD1E3463E5009B53BC /* QMUIResources.bundle */; };
 		C0AAC12A1D0FA7010044C6F0 /* AppTab_iPad.m in Sources */ = {isa = PBXBuildFile; fileRef = C0AAC1061D0FA7010044C6F0 /* AppTab_iPad.m */; };
 		C0AAC12B1D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0AAC1081D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png */; };
 		C0AAC12C1D0FA7010044C6F0 /* welcome01_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0AAC10A1D0FA7010044C6F0 /* welcome01_iPad@2x.png */; };
@@ -524,8 +522,6 @@
 		C066929D1E344DDF009B53BC /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		C066929F1E344E13009B53BC /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		C06692AB1E345C19009B53BC /* qmui.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = qmui.xcodeproj; path = QMUI/qmui.xcodeproj; sourceTree = "<group>"; };
-		C06692BC1E3463E5009B53BC /* QMUI_QQEmotion.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = QMUI_QQEmotion.bundle; path = QMUI/QMUIKit/UIResources/QMUI_QQEmotion.bundle; sourceTree = "<group>"; };
-		C06692BD1E3463E5009B53BC /* QMUIResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = QMUIResources.bundle; path = QMUI/QMUIKit/UIResources/QMUIResources.bundle; sourceTree = "<group>"; };
 		C0AAC1051D0FA7010044C6F0 /* AppTab_iPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppTab_iPad.h; sourceTree = "<group>"; };
 		C0AAC1061D0FA7010044C6F0 /* AppTab_iPad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppTab_iPad.m; sourceTree = "<group>"; };
 		C0AAC1081D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg_navigationBar_iPad@2x.png"; sourceTree = "<group>"; };
@@ -1474,8 +1470,6 @@
 		C06692AA1E345C0B009B53BC /* QMUI */ = {
 			isa = PBXGroup;
 			children = (
-				C06692BC1E3463E5009B53BC /* QMUI_QQEmotion.bundle */,
-				C06692BD1E3463E5009B53BC /* QMUIResources.bundle */,
 				C06692AB1E345C19009B53BC /* qmui.xcodeproj */,
 			);
 			name = QMUI;
@@ -3201,12 +3195,10 @@
 				C0C03BB01D0FDE91008DDF74 /* CommonNoResultCell.xml in Resources */,
 				C0B838121D0C615E0084D6C8 /* welcome02_5@2x.png in Resources */,
 				C0AAC1341D0FA7010044C6F0 /* welcome05_iPad@2x.png in Resources */,
-				C06692BF1E3463E5009B53BC /* QMUIResources.bundle in Resources */,
 				C0B8381F1D0C615E0084D6C8 /* wizard_page_last@2x.png in Resources */,
 				C0AAC1321D0FA7010044C6F0 /* welcome04_iPad@2x.png in Resources */,
 				C0B838211D0C615E0084D6C8 /* wizard_page_on@2x.png in Resources */,
 				C0AAC12C1D0FA7010044C6F0 /* welcome01_iPad@2x.png in Resources */,
-				C06692BE1E3463E5009B53BC /* QMUI_QQEmotion.bundle in Resources */,
 				C0AAC13A1D0FA7010044C6F0 /* wizard_5_iPad.xml in Resources */,
 				C0AAC1361D0FA7010044C6F0 /* wizard_1_iPad.xml in Resources */,
 				C066928F1E3445EB009B53BC /* QMUIResources.bundle in Resources */,
