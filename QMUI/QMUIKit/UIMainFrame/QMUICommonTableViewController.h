@@ -7,7 +7,6 @@
 //
 
 #import "QMUICommonViewController.h"
-#import "QMUISearchController.h"
 #import "QMUITableView.h"
 
 /**
@@ -36,24 +35,31 @@ extern const UIEdgeInsets QMUICommonTableViewControllerInitialContentInsetNotSet
 - (instancetype)initWithStyle:(UITableViewStyle)style NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
+/**
+ *  初始化时调用的方法，会在两个 NS_DESIGNATED_INITIALIZER 方法中被调用，所以子类如果需要同时支持两个 NS_DESIGNATED_INITIALIZER 方法，则建议把初始化时要做的事情放到这个方法里。否则仅需重写要支持的那个 NS_DESIGNATED_INITIALIZER 方法即可。
+ */
+- (void)didInitializedWithStyle:(UITableViewStyle)style NS_REQUIRES_SUPER;
+
 /// 获取当前的 `UITableViewStyle`
 @property(nonatomic, assign, readonly) UITableViewStyle style;
 
 /// 获取当前的 tableView
-@property(nonatomic, strong, readonly) QMUITableView *tableView;
+@property(nonatomic, strong, readonly) IBOutlet QMUITableView *tableView;
 
 /**
  *  列表使用自定义的contentInset，不使用系统默认计算的，默认为QMUICommonTableViewControllerInitialContentInsetNotSet。<br/>
  *  当更改了这个值后，会把self.automaticallyAdjustsScrollViewInsets = NO
  */
-@property(nonatomic,assign) UIEdgeInsets tableViewInitialContentInset;
+@property(nonatomic, assign) UIEdgeInsets tableViewInitialContentInset;
 
 /**
  *  是否需要让scrollIndicatorInsets与tableView.contentInsets区分开来，如果不设置，则与tableView.contentInset保持一致。
  *
  *  只有当更改了tableViewInitialContentInset后，这个属性才会生效。
  */
-@property(nonatomic,assign) UIEdgeInsets tableViewInitialScrollIndicatorInsets;
+@property(nonatomic, assign) UIEdgeInsets tableViewInitialScrollIndicatorInsets;
+
+- (void)hideTableHeaderViewInitialIfCanWithAnimated:(BOOL)animated force:(BOOL)force;
 
 @end
 
@@ -75,52 +81,5 @@ extern const UIEdgeInsets QMUICommonTableViewControllerInitialContentInsetNotSet
  *  @see QMUITableViewDelegate
  */
 - (BOOL)shouldHideTableHeaderViewInitial;
-
-@end
-
-
-@interface QMUICommonTableViewController (Search) <QMUISearchControllerDelegate>
-
-/**
- *  控制列表里是否需要搜索框，如果为 YES，则会在 viewDidLoad 之后创建一个 searchBar 作为 tableHeaderView；如果为 NO，则会移除已有的 searchBar 和 searchController。
- *  默认为 NO。
- *  @note 若在 viewDidLoad 之前设置为 YES，也会等到 viewDidLoad 时才去创建搜索框。
- *  @note 用于代替 QMUI 1.3.7 以前使用的 `QMUITableViewDelegate shouldShowSearchBarInTableView:` 方法。
- */
-@property(nonatomic, assign) BOOL shouldShowSearchBar;
-
-/**
- *  获取当前的 searchController，注意只有当 `shouldShowSearchBar` 为 `YES` 时才有用
- *
- *  默认为 `nil`
- *
- *  @see QMUITableViewDelegate
- */
-@property(nonatomic, strong, readonly) QMUISearchController *searchController;
-
-/**
- *  获取当前的 searchBar，注意只有当 `shouldShowSearchBar` 为 `YES` 时才有用
- *
- *  默认为 `nil`
- *
- *  @see QMUITableViewDelegate
- */
-@property(nonatomic, strong, readonly) UISearchBar *searchBar;
-
-/**
- *  是否应该在显示空界面时自动隐藏搜索框
- *
- *  默认为 `NO`
- */
-- (BOOL)shouldHideSearchBarWhenEmptyViewShowing;
-
-/**
- *  初始化searchController和searchBar，在initSubViews的时候被自动调用。
- *
- *  会询问 `self.shouldShowSearchBar`，若返回 `YES`，则创建 searchBar 并将其以 `tableHeaderView` 的形式呈现在界面里；若返回 `NO`，则将 `tableHeaderView` 置为nil。
- *
- *  @warning `self.shouldShowSearchBar` 默认为 NO，需要 searchBar 的界面必须手动将其置为 `YES`。
- */
-- (void)initSearchController;
 
 @end

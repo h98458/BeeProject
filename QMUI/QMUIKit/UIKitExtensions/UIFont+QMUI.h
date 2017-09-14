@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+#define UIFontLightMake(size) [UIFont qmui_lightSystemFontOfSize:size]
+#define UIFontLightWithFont(_font) [UIFont qmui_lightSystemFontOfSize:_font.pointSize]
+#define UIDynamicFontMake(_pointSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize weight:QMUIFontWeightNormal italic:NO]
+#define UIDynamicFontMakeWithLimit(_pointSize, _upperLimitSize, _lowerLimitSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize upperLimitSize:_upperLimitSize lowerLimitSize:_lowerLimitSize weight:QMUIFontWeightNormal italic:NO]
+#define UIDynamicFontBoldMake(_pointSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize weight:QMUIFontWeightBold italic:NO]
+#define UIDynamicFontBoldMakeWithLimit(_pointSize, _upperLimitSize, _lowerLimitSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize upperLimitSize:_upperLimitSize lowerLimitSize:_lowerLimitSize weight:QMUIFontWeightBold italic:NO]
+#define UIDynamicFontLightMake(_pointSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize weight:QMUIFontWeightLight italic:NO]
+#define UIDynamicFontLightMakeWithLimit(_pointSize, _upperLimitSize, _lowerLimitSize) [UIFont qmui_dynamicSystemFontOfSize:_pointSize upperLimitSize:_upperLimitSize lowerLimitSize:_lowerLimitSize weight:QMUIFontWeightLight italic:NO]
+
 typedef NS_ENUM(NSUInteger, QMUIFontWeight) {
     QMUIFontWeightLight,
     QMUIFontWeightNormal,
@@ -19,9 +28,9 @@ typedef NS_ENUM(NSUInteger, QMUIFontWeight) {
 /**
  *  返回系统字体的细体
  *
- * @param fontSize 字体大小
+ *  @param fontSize 字体大小
  *
- * @return 变细的系统字体的UIFont对象
+ *  @return 变细的系统字体的 UIFont 对象
  */
 + (UIFont *)qmui_lightSystemFontOfSize:(CGFloat)fontSize;
 
@@ -31,28 +40,36 @@ typedef NS_ENUM(NSUInteger, QMUIFontWeight) {
  *  @param weight   字体粗细
  *  @param italic   是否斜体
  */
-+ (UIFont *)qmui_systemFontOfSize:(CGFloat)size weight:(QMUIFontWeight)weight italic:(BOOL)italic;
++ (UIFont *)qmui_systemFontOfSize:(CGFloat)size
+                           weight:(QMUIFontWeight)weight
+                           italic:(BOOL)italic;
 
 /**
- * 返回支持动态字体的UIFont
- *
- * @param pointSize 默认的size
- * @param bold 是否加粗
- *
- * @return 支持动态字体的UIFont对象
+ *  根据需要生成一个支持响应动态字体大小调整的 UIFont 对象并返回
+ *  @param  size    字号大小
+ *  @param  weight  字重
+ *  @param  italic  是否斜体
+ *  @return         支持响应动态字体大小调整的 UIFont 对象
  */
-+ (UIFont *)qmui_dynamicFontWithSize:(CGFloat)pointSize bold:(BOOL)bold;
++ (UIFont *)qmui_dynamicSystemFontOfSize:(CGFloat)size
+                                  weight:(QMUIFontWeight)weight
+                                  italic:(BOOL)italic;
 
 /**
- * 返回支持动态字体的UIFont，支持定义最小和最大字号
+ *  返回支持动态字体的UIFont，支持定义最小和最大字号
  *
- * @param pointSize 默认的size
- * @param upperLimitSize 最大的字号限制
- * @param lowerLimitSize 最小的字号显示
- * @param bold 是否加粗
+ *  @param pointSize        默认的size
+ *  @param upperLimitSize   最大的字号限制
+ *  @param lowerLimitSize   最小的字号显示
+ *  @param weight           字重
+ *  @param italic           是否斜体
  *
- * @return 支持动态字体的UIFont对象
+ *  @return                 支持响应动态字体大小调整的 UIFont 对象
  */
-+ (UIFont *)qmui_dynamicFontWithSize:(CGFloat)pointSize upperLimitSize:(CGFloat)upperLimitSize lowerLimitSize:(CGFloat)lowerLimitSize bold:(BOOL)bold;
++ (UIFont *)qmui_dynamicSystemFontOfSize:(CGFloat)pointSize
+                          upperLimitSize:(CGFloat)upperLimitSize
+                          lowerLimitSize:(CGFloat)lowerLimitSize
+                                  weight:(QMUIFontWeight)weight
+                                  italic:(BOOL)italic;
 
 @end

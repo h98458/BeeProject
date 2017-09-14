@@ -7,9 +7,8 @@
 //
 
 #import "QMUIAlbumViewController.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
-#import "QMUIHelper.h"
+#import "QMUICore.h"
+#import "QMUIButton.h"
 #import "UIView+QMUI.h"
 #import "QMUIAssetsManager.h"
 #import "QMUIImagePickerViewController.h"
@@ -76,13 +75,13 @@ const UIEdgeInsets QMUIAlbumTableViewCellDefaultAlbumNameInsets = {0, 8, 0, 4};
     
     CGFloat contentViewPaddingRight = 10;
     self.imageView.frame = CGRectMake(0, 0, CGRectGetHeight(self.contentView.bounds), CGRectGetHeight(self.contentView.bounds));
-    self.textLabel.frame = CGRectSetXY(self.textLabel.frame, CGRectGetMaxX(self.imageView.frame) + self.albumNameInsets.left, flat([self.textLabel qmui_minYWhenCenterInSuperview]));
+    self.textLabel.frame = CGRectSetXY(self.textLabel.frame, CGRectGetMaxX(self.imageView.frame) + self.albumNameInsets.left, flat([self.textLabel qmui_topWhenCenterInSuperview]));
     CGFloat textLabelMaxWidth = CGRectGetWidth(self.contentView.bounds) - contentViewPaddingRight - CGRectGetWidth(self.detailTextLabel.frame) - self.albumNameInsets.right - CGRectGetMinX(self.textLabel.frame);
     if (CGRectGetWidth(self.textLabel.frame) > textLabelMaxWidth) {
         self.textLabel.frame = CGRectSetWidth(self.textLabel.frame, textLabelMaxWidth);
     }
     
-    self.detailTextLabel.frame = CGRectSetXY(self.detailTextLabel.frame, CGRectGetMaxX(self.textLabel.frame) + self.albumNameInsets.right, flat([self.detailTextLabel qmui_minYWhenCenterInSuperview]));
+    self.detailTextLabel.frame = CGRectSetXY(self.detailTextLabel.frame, CGRectGetMaxX(self.textLabel.frame) + self.albumNameInsets.right, flat([self.detailTextLabel qmui_topWhenCenterInSuperview]));
     _bottomLineLayer.frame = CGRectMake(0, CGRectGetHeight(self.contentView.bounds) - PixelOne, CGRectGetWidth(self.bounds), PixelOne);
 }
 
@@ -132,6 +131,7 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
 - (void)didInitialized {
     [super didInitialized];
     _usePhotoKit = IOS_VERSION >= 8.0;
+    _shouldShowDefaultLoadingView = YES;
     if (albumViewControllerAppearance) {
         // 避免 albumViewControllerAppearance init 时走到这里来，导致死循环
         self.albumTableViewCellHeight = [QMUIAlbumViewController appearance].albumTableViewCellHeight;
@@ -169,18 +169,36 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
         
         _albumsArray = [[NSMutableArray alloc] init];
         
-        [[QMUIAssetsManager sharedInstance] enumerateAllAlbumsWithAlbumContentType:self.contentType usingBlock:^(QMUIAssetsGroup *resultAssetsGroup) {
-            if (resultAssetsGroup) {
-                [_albumsArray addObject:resultAssetsGroup];
-            } else {
-                [self refreshAlbumAndShowEmptyTipIfNeed];
-            }
-        }];
+        // 获取相册列表较为耗时，交给子线程去处理，因此这里需要显示 Loading
+        if ([self.albumViewControllerDelegate respondsToSelector:@selector(albumViewControllerWillStartLoad:)]) {
+            [self.albumViewControllerDelegate albumViewControllerWillStartLoad:self];
+        }
+        if (self.shouldShowDefaultLoadingView) {
+            [self showEmptyViewWithLoading];
+        }
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            [[QMUIAssetsManager sharedInstance] enumerateAllAlbumsWithAlbumContentType:self.contentType usingBlock:^(QMUIAssetsGroup *resultAssetsGroup) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // 这里需要对 UI 进行操作，因此放回主线程处理
+                    if (resultAssetsGroup) {
+                        [_albumsArray addObject:resultAssetsGroup];
+                    } else {
+                        [self refreshAlbumAndShowEmptyTipIfNeed];
+                    }
+                });
+            }];
+        });
     }
 }
 
 - (void)refreshAlbumAndShowEmptyTipIfNeed {
     if ([_albumsArray count] > 0) {
+        if ([self.albumViewControllerDelegate respondsToSelector:@selector(albumViewControllerWillFinishLoad:)]) {
+            [self.albumViewControllerDelegate albumViewControllerWillFinishLoad:self];
+        }
+        if (self.shouldShowDefaultLoadingView) {
+            [self hideEmptyView];
+        }
         [self.tableView reloadData];
     } else {
         NSString *tipString = self.tipTextWhenPhotosEmpty ? : @"空照片";
@@ -211,7 +229,7 @@ static QMUIAlbumViewController *albumViewControllerAppearance;
     // 显示相册名称
     cell.textLabel.text = [assetsGroup name];
     // 显示相册中所包含的资源数量
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"(%ld)", (long)assetsGroup.numberOfAssets];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"(%@)", @(assetsGroup.numberOfAssets)];
     
     [cell updateCellAppearanceWithIndexPath:indexPath];
     

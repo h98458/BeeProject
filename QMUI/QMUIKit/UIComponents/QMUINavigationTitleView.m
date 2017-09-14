@@ -7,27 +7,27 @@
 //
 
 #import "QMUINavigationTitleView.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
+#import "QMUICore.h"
+#import "UIFont+QMUI.h"
 #import "UIImage+QMUI.h"
 #import "UILabel+QMUI.h"
 #import "UIActivityIndicatorView+QMUI.h"
 #import "UIView+QMUI.h"
 
-@interface UINavigationBar (QMUI)
+@interface UINavigationBar (TitleView)
 
 @end
 
-@implementation UINavigationBar (QMUI)
+@implementation UINavigationBar (TitleView)
 
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        ReplaceMethod([self class], @selector(layoutSubviews), @selector(qmui_navigationBarLayoutSubviews));
+        ReplaceMethod([self class], @selector(layoutSubviews), @selector(titleView_navigationBarLayoutSubviews));
     });
 }
 
-- (void)qmui_navigationBarLayoutSubviews {
+- (void)titleView_navigationBarLayoutSubviews {
     QMUINavigationTitleView *titleView = (QMUINavigationTitleView *)self.topItem.titleView;
     
     if ([titleView isKindOfClass:[QMUINavigationTitleView class]]) {
@@ -39,14 +39,21 @@
         if (CGRectGetHeight(titleView.bounds) != titleViewSize.height) {
 //            NSLog(@"【%@】修正布局前\ntitleView = %@", NSStringFromClass(titleView.class), titleView);
             CGFloat titleViewMinY = flat(CGRectGetMinY(titleView.frame) - ((titleViewSize.height - CGRectGetHeight(titleView.bounds)) / 2.0));// 系统对titleView的y值布局是flat，注意，不能改，改了要测试
-            titleView.frame = CGRectMake(CGRectGetMinX(titleView.frame), titleViewMinY, fminf(titleViewMaximumWidth, titleViewSize.width), titleViewSize.height);
+            titleView.frame = CGRectMake(CGRectGetMinX(titleView.frame), titleViewMinY, fmin(titleViewMaximumWidth, titleViewSize.width), titleViewSize.height);
 //            NSLog(@"【%@】修正布局后\ntitleView = %@", NSStringFromClass(titleView.class), titleView);
+        }
+        
+        // iOS 11 之后（iOS 11 Beta 5 测试过） titleView 的布局发生了一些变化，如果不主动设置宽度，titleView 里的内容就可能无法完整展示
+        if (IOS_VERSION >= 11.0) {
+            if (CGRectGetWidth(titleView.bounds) != titleViewSize.width) {
+                titleView.frame = CGRectSetWidth(titleView.frame, titleViewSize.width);
+            }
         }
     } else {
         titleView = nil;
     }
     
-    [self qmui_navigationBarLayoutSubviews];
+    [self titleView_navigationBarLayoutSubviews];
     
     if (titleView) {
 //        NSLog(@"【%@】系统布局后\ntitleView = %@", NSStringFromClass(titleView.class), titleView);
@@ -119,8 +126,24 @@
 #pragma mark - 布局
 
 - (void)refreshLayout {
-    [self.superview setNeedsLayout];
+    UINavigationBar *navigationBar = [self navigationBarSuperviewForSubview:self];
+    if (navigationBar) {
+        [navigationBar setNeedsLayout];
+    }
     [self setNeedsLayout];
+}
+
+// 找到 titleView 所在的 navigationBar（iOS 11 及以后，titleView.superview.superview == navigationBar，iOS 10 及以前，titleView.superview == navigationBar）
+- (UINavigationBar *)navigationBarSuperviewForSubview:(UIView *)subview {
+    if (!subview.superview) {
+        return nil;
+    }
+    
+    if ([subview.superview isKindOfClass:[UINavigationBar class]]) {
+        return (UINavigationBar *)subview.superview;
+    }
+    
+    return [self navigationBarSuperviewForSubview:subview.superview];
 }
 
 - (void)updateTitleLabelSize {
@@ -183,7 +206,7 @@
         
         CGFloat secondLineWidth = self.subtitleLabelSize.width + UIEdgeInsetsGetHorizontalValue(self.subtitleEdgeInsetsIfShowingSubtitleLabel);
         
-        size.width = fmaxf(firstLineWidth, secondLineWidth);
+        size.width = fmax(firstLineWidth, secondLineWidth);
         
         size.height = self.titleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.titleEdgeInsetsIfShowingTitleLabel) + self.subtitleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.subtitleEdgeInsetsIfShowingSubtitleLabel);
         return CGSizeFlatted(size);
@@ -191,9 +214,9 @@
         CGSize size = CGSizeZero;
         size.width = self.titleLabelSize.width + UIEdgeInsetsGetHorizontalValue(self.titleEdgeInsetsIfShowingTitleLabel) + self.subtitleLabelSize.width + UIEdgeInsetsGetHorizontalValue(self.subtitleEdgeInsetsIfShowingSubtitleLabel);
         size.width += [self loadingViewSpacingSizeIfNeedsPlaceholder].width + [self accessorySpacingSizeIfNeedesPlaceholder].width;
-        size.height = fmaxf(self.titleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.titleEdgeInsetsIfShowingTitleLabel), self.subtitleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.subtitleEdgeInsetsIfShowingSubtitleLabel));
-        size.height = fmaxf(size.height, [self loadingViewSpacingSizeIfNeedsPlaceholder].height);
-        size.height = fmaxf(size.height, [self accessorySpacingSizeIfNeedesPlaceholder].height);
+        size.height = fmax(self.titleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.titleEdgeInsetsIfShowingTitleLabel), self.subtitleLabelSize.height + UIEdgeInsetsGetVerticalValue(self.subtitleEdgeInsetsIfShowingSubtitleLabel));
+        size.height = fmax(size.height, [self loadingViewSpacingSizeIfNeedsPlaceholder].height);
+        size.height = fmax(size.height, [self accessorySpacingSizeIfNeedesPlaceholder].height);
         return CGSizeFlatted(size);
     }
 }
@@ -224,8 +247,8 @@
     
     // 实际内容的size，小于等于maxSize
     CGSize contentSize = [self contentSize];
-    contentSize.width = fminf(maxSize.width, contentSize.width);
-    contentSize.height = fminf(maxSize.height, contentSize.height);
+    contentSize.width = fmin(maxSize.width, contentSize.width);
+    contentSize.height = fmin(maxSize.height, contentSize.height);
     
     // 计算左右两边的偏移值
     CGFloat offsetLeft = 0;
@@ -420,16 +443,21 @@
     if (!self.accessoryTypeView) {
         self.accessoryTypeView = [[UIImageView alloc] init];
         self.accessoryTypeView.contentMode = UIViewContentModeCenter;
-        [self addSubview:self.accessoryTypeView];
     }
     
-    UIImage *accessoryImage;
+    UIImage *accessoryImage = nil;
     if (accessoryType == QMUINavigationTitleViewAccessoryTypeDisclosureIndicator) {
         accessoryImage = [NavBarAccessoryViewTypeDisclosureIndicatorImage qmui_imageWithOrientation:UIImageOrientationUp];
     }
     
     self.accessoryTypeView.image = accessoryImage;
     [self.accessoryTypeView sizeToFit];
+    
+    // 经过上面的 setImage 和 sizeToFit 之后再 addSubview，因为 addSubview 会触发系统来询问你的 sizeThatFits:
+    if (self.accessoryTypeView.superview != self) {
+        [self addSubview:self.accessoryTypeView];
+    }
+    
     [self refreshLayout];
 }
 

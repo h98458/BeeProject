@@ -7,9 +7,8 @@
 //
 
 #import "QMUIAssetsManager.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
-#import "QMUIHelper.h"
+#import "QMUICore.h"
+#import "QMUIAsset.h"
 
 void QMUIImageWriteToSavedPhotosAlbumWithAlbumAssetsGroup(UIImage *image, QMUIAssetsGroup *albumAssetsGroup, QMUIWriteAssetCompletionBlock completionBlock) {
     [[QMUIAssetsManager sharedInstance] saveImageWithImageRef:image.CGImage albumAssetsGroup:albumAssetsGroup orientation:image.imageOrientation completionBlock:completionBlock];
@@ -297,8 +296,8 @@ void QMUISaveVideoAtPathToSavedPhotosAlbumWithAlbumAssetsGroup(NSString *videoPa
         if ([collection isKindOfClass:[PHAssetCollection class]]) {
             PHAssetCollection *assetCollection = (PHAssetCollection *)collection;
             // 获取相册内的资源对应的 fetchResult，用于判断根据内容类型过滤后的资源数量是否大于 0，只有资源数量大于 0 的相册才会作为有效的相册显示
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:assetCollection options:fetchOptions];
-            if (fetchResult.count > 0 || showEmptyAlbum) {
+            PHFetchResult *currentFetchResult = [PHAsset fetchAssetsInAssetCollection:assetCollection options:fetchOptions];
+            if (currentFetchResult.count > 0 || showEmptyAlbum) {
                 // 若相册不为空，或者允许显示空相册，则保存相册到结果数组
                 // 判断如果是“相机胶卷”，则放到结果列表的第一位
                 if (assetCollection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
@@ -334,6 +333,19 @@ void QMUISaveVideoAtPathToSavedPhotosAlbumWithAlbumAssetsGroup(NSString *videoPa
             }
         }
     }
+    
+    // 获取从 macOS 设备同步过来的相册，同步过来的相册不允许删除照片，因此不会为空
+    PHFetchResult *macCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
+    // 循环从 macOS 设备同步过来的相册
+    for (NSInteger i = 0; i < macCollections.count; i++) {
+        // 获取一个相册
+        PHCollection *collection = macCollections[i];
+        if ([collection isKindOfClass:[PHAssetCollection class]]) {
+            PHAssetCollection *assetCollection = (PHAssetCollection *)collection;
+            [tempAlbumsArray addObject:assetCollection];
+        }
+    }
+    
     NSArray *resultAlbumsArray = [tempAlbumsArray copy];
     return resultAlbumsArray;
 }

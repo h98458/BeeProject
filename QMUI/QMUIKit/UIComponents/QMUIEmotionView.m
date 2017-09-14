@@ -7,9 +7,7 @@
 //
 
 #import "QMUIEmotionView.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
-#import "QMUIHelper.h"
+#import "QMUICore.h"
 #import "QMUIButton.h"
 #import "UIView+QMUI.h"
 #import "UIScrollView+QMUI.h"
@@ -105,7 +103,7 @@
         
         self.deleteButton = [[QMUIButton alloc] init];
         self.deleteButton.adjustsButtonWhenHighlighted = NO;// 去掉QMUIButton默认的高亮动画，从而加快连续快速点击的响应速度
-        self.deleteButton.qmui_needsTakeOverTouchEvent = YES;
+        self.deleteButton.qmui_automaticallyAdjustTouchHighlightedInScrollView = YES;
         [self.deleteButton addTarget:self action:@selector(handleDeleteButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.deleteButton];
         
@@ -149,7 +147,7 @@
     CGFloat horizontalRatio = CGRectGetWidth(contextRect) / imageSize.width;
     CGFloat verticalRatio = CGRectGetHeight(contextRect) / imageSize.height;
     // 表情图片按UIViewContentModeScaleAspectFit的方式来绘制
-    CGFloat ratio = fminf(horizontalRatio, verticalRatio);
+    CGFloat ratio = fmin(horizontalRatio, verticalRatio);
     CGRect drawingRect = CGRectZero;
     drawingRect.size.width = imageSize.width * ratio;
     drawingRect.size.height = imageSize.height * ratio;

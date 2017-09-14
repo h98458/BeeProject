@@ -8,24 +8,15 @@
 
 #import "QDCommonGroupListViewController.h"
 
-@interface QDCommonGroupListViewController ()
-
-@end
-
 @implementation QDCommonGroupListViewController
 
 - (instancetype)init {
     return [self initWithStyle:UITableViewStyleGrouped];
 }
 
-- (instancetype)initWithStyle:(UITableViewStyle)style {
-    if (self = [super initWithStyle:style]) {
-        [self initDataSource];
-        if (style == UITableViewStyleGrouped) {
-            self.tableViewInitialContentInset = UIEdgeInsetsMake(NavigationContentTop - 35, 0, 0, 0);
-        }
-    }
-    return self;
+- (void)didInitializedWithStyle:(UITableViewStyle)style {
+    [super didInitializedWithStyle:style];
+    [self initDataSource];
 }
 
 #pragma mark - <QMUITableViewDataSource,QMUITableViewDelegate>

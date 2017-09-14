@@ -7,9 +7,7 @@
 //
 
 #import "QMUIImagePickerPreviewViewController.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
-#import "QMUIHelper.h"
+#import "QMUICore.h"
 #import "QMUIImagePickerViewController.h"
 #import "QMUIImagePickerHelper.h"
 #import "QMUIAssetsManager.h"
@@ -217,6 +215,19 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
     return [self.imagesAssetArray count];
 }
 
+- (QMUIImagePreviewMediaType)imagePreviewView:(QMUIImagePreviewView *)imagePreviewView assetTypeAtIndex:(NSUInteger)index {
+    QMUIAsset *imageAsset = [self.imagesAssetArray objectAtIndex:index];
+    if (imageAsset.assetType == QMUIAssetTypeImage) {
+        return QMUIImagePreviewMediaTypeImage;
+    } else if (imageAsset.assetType == QMUIAssetTypeLivePhoto) {
+        return QMUIImagePreviewMediaTypeLivePhoto;
+    } else if (imageAsset.assetType == QMUIAssetTypeVideo) {
+        return QMUIImagePreviewMediaTypeVideo;
+    } else {
+        return QMUIImagePreviewMediaTypeOthers;
+    }
+}
+
 - (void)imagePreviewView:(QMUIImagePreviewView *)imagePreviewView renderZoomImageView:(QMUIZoomImageView *)zoomImageView atIndex:(NSUInteger)index {
     [self requestImageForZoomImageView:zoomImageView withIndex:index];
 }
@@ -234,17 +245,21 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
     self.topToolBarView.hidden = !self.topToolBarView.hidden;
 }
 
+
+- (void)zoomImageView:(QMUIZoomImageView *)imageView didHideVideoToolbar:(BOOL)didHide {
+    self.topToolBarView.hidden = didHide;
+}
+
 #pragma mark - 按钮点击回调
 
-- (void)handleCancelPreviewImage:(id)sender {
+- (void)handleCancelPreviewImage:(QMUIButton *)button {
     [self.navigationController popViewControllerAnimated:YES];
     if (self.delegate && [self.delegate respondsToSelector:@selector(imagePickerPreviewViewControllerDidCancel:)]) {
         [self.delegate imagePickerPreviewViewControllerDidCancel:self];
     }
 }
 
-- (void)handleCheckButtonClick:(id)sender {
-    QMUINavigationButton *button = sender;
+- (void)handleCheckButtonClick:(QMUIButton *)button {
     [QMUIImagePickerHelper removeSpringAnimationOfImageCheckedWithCheckboxButton:button];
     
     if (button.selected) {
@@ -262,7 +277,7 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
     } else {
         if ([self.selectedImageAssetArray count] >= self.maximumSelectImageCount) {
             if (!self.alertTitleWhenExceedMaxSelectImageCount) {
-                self.alertTitleWhenExceedMaxSelectImageCount = [NSString stringWithFormat:@"你最多只能选择%lu张图片", (long)self.maximumSelectImageCount];
+                self.alertTitleWhenExceedMaxSelectImageCount = [NSString stringWithFormat:@"你最多只能选择%@张图片", @(self.maximumSelectImageCount)];
             }
             if (!self.alertButtonTitleWhenExceedMaxSelectImageCount) {
                 self.alertButtonTitleWhenExceedMaxSelectImageCount = [NSString stringWithFormat:@"我知道了"];
@@ -297,6 +312,9 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
 
 - (void)requestImageForZoomImageView:(QMUIZoomImageView *)zoomImageView withIndex:(NSInteger)index {
     QMUIZoomImageView *imageView = zoomImageView ? : [self.imagePreviewView zoomImageViewAtIndex:index];
+    // 如果是走 PhotoKit 的逻辑，那么这个 block 会被多次调用，并且第一次调用时返回的图片是一张小图，
+    // 拉取图片的过程中可能会多次返回结果，且图片尺寸越来越大，因此这里调整 contentMode 以防止图片大小跳动
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
     QMUIAsset *imageAsset = [self.imagesAssetArray objectAtIndex:index];
     
     // 获取资源图片的预览图，这是一张适合当前设备屏幕大小的图片，最终展示时把图片交给组件控制最终展示出来的大小。
@@ -317,11 +335,11 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
                     [self.progressView setProgress:0 animated:NO];
                 }
                 // 拉取资源的初期，会有一段时间没有进度，猜测是发出网络请求以及与 iCloud 建立连接的耗时，这时预先给个 0.02 的进度值，看上去好看些
-                float targetProgress = fmaxf(0.02, progress);
+                float targetProgress = fmax(0.02, progress);
                 if ( targetProgress < self.progressView.progress ) {
                     [self.progressView setProgress:targetProgress animated:NO];
                 } else {
-                    self.progressView.progress = fmaxf(0.02, progress);
+                    self.progressView.progress = fmax(0.02, progress);
                 }
                 if (error) {
                     QMUILog(@"Download iCloud image Failed, current progress is: %f", progress);
@@ -333,27 +351,23 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
     
     if (imageAsset.assetType == QMUIAssetTypeLivePhoto) {
         imageView.tag = -1;
-        imageAsset.requestID = [imageAsset requestLivePhotoWithCompletion:^void(PHLivePhoto *result, NSDictionary *info) {
+        imageAsset.requestID = [imageAsset requestLivePhotoWithCompletion:^void(PHLivePhoto *livePhoto, NSDictionary *info) {
             // 这里可能因为 imageView 复用，导致前面的请求得到的结果显示到别的 imageView 上，
             // 因此判断如果是新请求（无复用问题）或者是当前的请求才把获得的图片结果展示出来
             BOOL isNewRequest = (imageView.tag == -1 && imageAsset.requestID == 0);
             BOOL isCurrentRequest = imageView.tag == imageAsset.requestID;
-            BOOL loadICloudImageFault = !result || info[PHImageErrorKey];
-            BOOL isDegradedImage = [info[PHImageResultIsDegradedKey] boolValue]; // 是否为低清图
+            BOOL loadICloudImageFault = !livePhoto || info[PHImageErrorKey];
             if (!loadICloudImageFault && (isNewRequest || isCurrentRequest)) {
                 // 如果是走 PhotoKit 的逻辑，那么这个 block 会被多次调用，并且第一次调用时返回的图片是一张小图，
                 // 这时需要把图片放大到跟屏幕一样大，避免后面加载大图后图片的显示会有跳动
-                if (isDegradedImage || loadICloudImageFault) {
-                    imageView.contentMode = UIViewContentModeScaleAspectFit;
-                } else {
-                    imageView.contentMode = UIViewContentModeCenter;
-                }
-                imageView.livePhoto = result;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    imageView.livePhoto = livePhoto;
+                });
             }
             
-            BOOL downlaodSucceed = (result && !info) || (![[info objectForKey:PHLivePhotoInfoCancelledKey] boolValue] && ![info objectForKey:PHLivePhotoInfoErrorKey] && ![[info objectForKey:PHLivePhotoInfoIsDegradedKey] boolValue]);
+            BOOL downloadSucceed = (livePhoto && !info) || (![[info objectForKey:PHLivePhotoInfoCancelledKey] boolValue] && ![info objectForKey:PHLivePhotoInfoErrorKey] && ![[info objectForKey:PHLivePhotoInfoIsDegradedKey] boolValue]);
             
-            if (downlaodSucceed) {
+            if (downloadSucceed) {
                 // 资源资源已经在本地或下载成功
                 [imageAsset updateDownloadStatusWithDownloadResult:YES];
                 self.downloadStatus = QMUIAssetDownloadStatusSucceed;
@@ -366,6 +380,21 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
             
         } withProgressHandler:phProgressHandler];
         imageView.tag = imageAsset.requestID;
+    } else if (imageAsset.assetType == QMUIAssetTypeVideo) {
+        imageView.tag = -1;
+        imageAsset.requestID = [imageAsset requestPlayerItemWithCompletion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            // 这里可能因为 imageView 复用，导致前面的请求得到的结果显示到别的 imageView 上，
+            // 因此判断如果是新请求（无复用问题）或者是当前的请求才把获得的图片结果展示出来
+            BOOL isNewRequest = (imageView.tag == -1 && imageAsset.requestID == 0);
+            BOOL isCurrentRequest = imageView.tag == imageAsset.requestID;
+            BOOL loadICloudImageFault = !playerItem || info[PHImageErrorKey];
+            if (!loadICloudImageFault && (isNewRequest || isCurrentRequest)) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    imageView.videoPlayerItem = playerItem;
+                });
+            }
+        } withProgressHandler:phProgressHandler];
+        imageView.tag = imageAsset.requestID;
     } else {
         imageView.tag = -1;
         imageAsset.requestID = [imageAsset requestPreviewImageWithCompletion:^void(UIImage *result, NSDictionary *info) {
@@ -374,21 +403,15 @@ static QMUIImagePickerPreviewViewController *imagePickerPreviewViewControllerApp
             BOOL isNewRequest = (imageView.tag == -1 && imageAsset.requestID == 0);
             BOOL isCurrentRequest = imageView.tag == imageAsset.requestID;
             BOOL loadICloudImageFault = !result || info[PHImageErrorKey];
-            BOOL isDegradedImage = [info[PHImageResultIsDegradedKey] boolValue]; // 是否为低清图
             if (!loadICloudImageFault && (isNewRequest || isCurrentRequest)) {
-                // 如果是走 PhotoKit 的逻辑，那么这个 block 会被多次调用，并且第一次调用时返回的图片是一张小图，
-                // 这时需要把图片放大到跟屏幕一样大，避免后面加载大图后图片的显示会有跳动
-                if (isDegradedImage || loadICloudImageFault) {
-                    imageView.contentMode = UIViewContentModeScaleAspectFit;
-                } else {
-                    imageView.contentMode = UIViewContentModeCenter;
-                }
-                imageView.image = result;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    imageView.image = result;
+                });
             }
             
-            BOOL downlaodSucceed = (result && !info) || (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey] && ![[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
+            BOOL downloadSucceed = (result && !info) || (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey] && ![[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
             
-            if (downlaodSucceed) {
+            if (downloadSucceed) {
                 // 资源资源已经在本地或下载成功
                 [imageAsset updateDownloadStatusWithDownloadResult:YES];
                 self.downloadStatus = QMUIAssetDownloadStatusSucceed;

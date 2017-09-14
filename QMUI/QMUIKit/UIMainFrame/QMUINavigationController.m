@@ -7,14 +7,52 @@
 //
 
 #import "QMUINavigationController.h"
-#import "QMUICommonDefines.h"
-#import "QMUIConfigurationMacros.h"
+#import "QMUICore.h"
 #import "QMUINavigationTitleView.h"
 #import "QMUICommonViewController.h"
-#import "QMUIButton.h"
-#import "QMUIHelper.h"
 #import "UIViewController+QMUI.h"
 #import "UINavigationController+QMUI.h"
+
+
+@interface UIViewController (QMUINavigationController)
+
+@property(nonatomic, assign) BOOL qmui_isViewWillAppeare;
+
+@end
+
+@implementation UIViewController (QMUINavigationController)
+
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class cls = [self class];
+        ReplaceMethod(cls, @selector(viewWillAppear:), @selector(observe_viewWillAppear:));
+        ReplaceMethod(cls, @selector(viewDidDisappear:), @selector(observe_viewDidDisappear:));
+    });
+}
+
+- (void)observe_viewWillAppear:(BOOL)animated {
+    [self observe_viewWillAppear:animated];
+    self.qmui_isViewWillAppeare = YES;
+}
+
+- (void)observe_viewDidDisappear:(BOOL)animated {
+    [self observe_viewDidDisappear:animated];
+    self.qmui_isViewWillAppeare = NO;
+}
+
+- (BOOL)qmui_isViewWillAppeare {
+    return [objc_getAssociatedObject(self, _cmd) boolValue];
+}
+
+- (void)setQmui_isViewWillAppeare:(BOOL)qmui_isViewWillAppeare {
+    [self willChangeValueForKey:@"qmui_isViewWillAppeare"];
+    objc_setAssociatedObject(self, @selector(qmui_isViewWillAppeare), [[NSNumber alloc] initWithBool:qmui_isViewWillAppeare], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self didChangeValueForKey:@"qmui_isViewWillAppeare"];
+}
+
+@end
+
 
 @interface QMUINavigationController () <UIGestureRecognizerDelegate>
 
@@ -71,12 +109,12 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self willShowViewController:self.topViewController];
+    [self willShowViewController:self.topViewController animated:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self didShowViewController:self.topViewController];
+    [self didShowViewController:self.topViewController animated:animated];
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated {
@@ -86,18 +124,23 @@
 //        return nil;
 //    }
     
+    if (self.viewControllers.count < 2) {
+        // 只剩 1 个 viewController 或者不存在 viewController 时，调用 popViewControllerAnimated: 后不会有任何变化，所以不需要触发 willPop / didPop
+        return [super popViewControllerAnimated:animated];
+    }
+    
     if (animated) {
         self.isViewControllerTransiting = YES;
     }
     
     UIViewController *viewController = [self topViewController];
     self.viewControllerPopping = viewController;
-    if ([viewController respondsToSelector:@selector(willPopViewController)]) {
-        [viewController performSelector:@selector(willPopViewController) withObject:nil];
+    if ([viewController respondsToSelector:@selector(willPopInNavigationControllerWithAnimated:)]) {
+        [((UIViewController<QMUINavigationControllerDelegate> *)viewController) willPopInNavigationControllerWithAnimated:animated];
     }
     viewController = [super popViewControllerAnimated:animated];
-    if ([viewController respondsToSelector:@selector(didPopViewController)]) {
-        [viewController performSelector:@selector(didPopViewController) withObject:nil];
+    if ([viewController respondsToSelector:@selector(didPopInNavigationControllerWithAnimated:)]) {
+        [((UIViewController<QMUINavigationControllerDelegate> *)viewController) didPopInNavigationControllerWithAnimated:animated];
     }
     return viewController;
 }
@@ -109,19 +152,41 @@
 //        return nil;
 //    }
     
+    if (!viewController || self.topViewController == viewController) {
+        // 当要被 pop 到的 viewController 已经处于最顶层时，调用 super 默认也是什么都不做，所以直接 return 掉
+        return [super popToViewController:viewController animated:animated];
+    }
+    
     if (animated) {
         self.isViewControllerTransiting = YES;
     }
     
-    UIViewController *viewControllerPopping = [self topViewController];
-    self.viewControllerPopping = viewControllerPopping;
-    if ([viewControllerPopping respondsToSelector:@selector(willPopViewController)]) {
-        [viewControllerPopping performSelector:@selector(willPopViewController) withObject:nil];
+    self.viewControllerPopping = self.topViewController;
+    
+    // will pop
+    for (NSInteger i = self.viewControllers.count - 1; i > 0; i--) {
+        UIViewController *viewControllerPopping = self.viewControllers[i];
+        if (viewControllerPopping == viewController) {
+            break;
+        }
+        
+        if ([viewControllerPopping respondsToSelector:@selector(willPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = i == self.viewControllers.count - 1 ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)viewControllerPopping) willPopInNavigationControllerWithAnimated:animatedArgument];
+        }
     }
-    NSArray<UIViewController *> * poppedViewControllers = [super popToViewController:viewController animated:animated];
-    if ([viewControllerPopping respondsToSelector:@selector(didPopViewController)]) {
-        [viewControllerPopping performSelector:@selector(didPopViewController) withObject:nil];
+    
+    NSArray<UIViewController *> *poppedViewControllers = [super popToViewController:viewController animated:animated];
+    
+    // did pop
+    for (NSInteger i = poppedViewControllers.count - 1; i >= 0; i--) {
+        UIViewController *viewControllerPopped = poppedViewControllers[i];
+        if ([viewControllerPopped respondsToSelector:@selector(didPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = i == poppedViewControllers.count - 1 ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)viewControllerPopped) didPopInNavigationControllerWithAnimated:animatedArgument];
+        }
     }
+    
     return poppedViewControllers;
 }
 
@@ -141,21 +206,64 @@
         self.isViewControllerTransiting = YES;
     }
     
-    UIViewController *viewController = [self topViewController];
-    self.viewControllerPopping = viewController;
-    if ([viewController respondsToSelector:@selector(willPopViewController)]) {
-        [viewController performSelector:@selector(willPopViewController) withObject:nil];
+    self.viewControllerPopping = self.topViewController;
+    
+    // will pop
+    for (NSInteger i = self.viewControllers.count - 1; i > 0; i--) {
+        UIViewController *viewControllerPopping = self.viewControllers[i];
+        if ([viewControllerPopping respondsToSelector:@selector(willPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = i == self.viewControllers.count - 1 ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)viewControllerPopping) willPopInNavigationControllerWithAnimated:animatedArgument];
+        }
     }
+    
     NSArray<UIViewController *> * poppedViewControllers = [super popToRootViewControllerAnimated:animated];
-    if ([viewController respondsToSelector:@selector(didPopViewController)]) {
-        [viewController performSelector:@selector(didPopViewController) withObject:nil];
+    
+    // did pop
+    for (NSInteger i = poppedViewControllers.count - 1; i >= 0; i--) {
+        UIViewController *viewControllerPopped = poppedViewControllers[i];
+        if ([viewControllerPopped respondsToSelector:@selector(didPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = i == poppedViewControllers.count - 1 ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)viewControllerPopped) didPopInNavigationControllerWithAnimated:animatedArgument];
+        }
     }
     return poppedViewControllers;
 }
 
+- (void)setViewControllers:(NSArray<UIViewController *> *)viewControllers animated:(BOOL)animated {
+    UIViewController *topViewController = self.topViewController;
+    
+    // will pop
+    NSMutableArray<UIViewController *> *viewControllersPopping = self.viewControllers.mutableCopy;
+    [viewControllersPopping removeObjectsInArray:viewControllers];
+    [viewControllersPopping enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj respondsToSelector:@selector(willPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = obj == topViewController ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)obj) willPopInNavigationControllerWithAnimated:animatedArgument];
+        }
+    }];
+    
+    [super setViewControllers:viewControllers animated:animated];
+    
+    // did pop
+    [viewControllersPopping enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj respondsToSelector:@selector(didPopInNavigationControllerWithAnimated:)]) {
+            BOOL animatedArgument = obj == topViewController ? animated : NO;// 只有当前可视的那个 viewController 的 animated 是跟随参数走的，其他 viewController 由于不可视，不管参数的值为多少，都认为是无动画地 pop
+            [((UIViewController<QMUINavigationControllerDelegate> *)obj) didPopInNavigationControllerWithAnimated:animatedArgument];
+        }
+    }];
+    
+    // 操作前后如果 topViewController 没发生变化，则为它调用一个特殊的时机
+    if (topViewController == viewControllers.lastObject) {
+        if ([topViewController respondsToSelector:@selector(viewControllerKeepingAppearWhenSetViewControllersWithAnimated:)]) {
+            [((UIViewController<QMUINavigationControllerDelegate> *)topViewController) viewControllerKeepingAppearWhenSetViewControllersWithAnimated:animated];
+        }
+    }
+}
+
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if (self.isViewControllerTransiting || !viewController) {
-        NSAssert(NO, @"%s, isViewControllerTransiting = %@, viewController = %@, self.viewControllers = %@",  __func__, StringFromBOOL(self.isViewControllerTransiting), viewController, self.viewControllers);
+        QMUILog(@"%@, 上一次界面切换的动画尚未结束就试图进行新的 push 操作，为了避免产生 bug，拦截了这次 push。\n%s, isViewControllerTransiting = %@, viewController = %@, self.viewControllers = %@", NSStringFromClass(self.class),  __func__, StringFromBOOL(self.isViewControllerTransiting), viewController, self.viewControllers);
         return;
     }
     
@@ -183,73 +291,36 @@
     [super setDelegate:delegate ? self : nil];
 }
 
-#pragma mark - 自定义方法
-
-// 根据当前的viewController，统一处理导航栏底部的分隔线、状态栏的颜色
-- (void)renderStyleInNavigationController:(UINavigationController *)navigationController currentViewController:(UIViewController *)viewController {
-    if ([[viewController class] conformsToProtocol:@protocol(QMUINavigationControllerDelegate)]) {
-        UIViewController<QMUINavigationControllerDelegate> *vc = (UIViewController<QMUINavigationControllerDelegate> *)viewController;
-        
-        // 控制界面的状态栏颜色
-        if ([vc shouldSetStatusBarStyleLight]) {
-            if ([[UIApplication sharedApplication] statusBarStyle] < UIStatusBarStyleLightContent) {
-                [QMUIHelper renderStatusBarStyleLight];
-            }
-        } else {
-            if ([[UIApplication sharedApplication] statusBarStyle] >= UIStatusBarStyleLightContent) {
-                [QMUIHelper renderStatusBarStyleDark];
-            }
-        }
-        
-        // 导航栏的背景
-        if ([vc respondsToSelector:@selector(navigationBarBackgroundImage)]) {
-            UIImage *backgroundImage = [vc navigationBarBackgroundImage];
-            [self.navigationBar setBackgroundImage:backgroundImage forBarMetrics:UIBarMetricsDefault];
-        } else {
-            [self.navigationBar setBackgroundImage:NavBarBackgroundImage forBarMetrics:UIBarMetricsDefault];
-        }
-        
-        // 导航栏底部的分隔线
-        if ([vc respondsToSelector:@selector(navigationBarShadowImage)]) {
-            UIImage *shadowImage = [vc navigationBarShadowImage];
-            [self.navigationBar setShadowImage:shadowImage];
-        } else {
-            [self.navigationBar setShadowImage:NavBarShadowImage];
-        }
-        
-        // 导航栏上控件的主题色
-        if ([vc respondsToSelector:@selector(navigationBarTintColor)]) {
-            UIColor *tintColor = [vc navigationBarTintColor];
-            self.navigationBar.tintColor = tintColor;
-        } else {
-            self.navigationBar.tintColor = NavBarTintColor;
-        }
-        
-        // 导航栏title的颜色
-        if ([vc isKindOfClass:[QMUICommonViewController class]]) {
-            QMUICommonViewController *qmuiVC = (QMUICommonViewController *)vc;
-            if ([qmuiVC respondsToSelector:@selector(titleViewTintColor)]) {
-                UIColor *tintColor = [qmuiVC titleViewTintColor];
-                qmuiVC.titleView.tintColor = tintColor;
-            } else {
-                qmuiVC.titleView.tintColor = NavBarTitleColor;
-            }
-        }
-    }
+// 重写这个方法才能让 viewControllers 对 statusBar 的控制生效
+- (UIViewController *)childViewControllerForStatusBarStyle {
+    return self.topViewController;
 }
+
+#pragma mark - 自定义方法
 
 // 接管系统手势返回的回调
 - (void)handleInteractivePopGestureRecognizer:(UIScreenEdgePanGestureRecognizer *)gestureRecognizer {
     UIGestureRecognizerState state = gestureRecognizer.state;
-    if (state == UIGestureRecognizerStateEnded) {
+    if (state == UIGestureRecognizerStateBegan) {
+        [self.viewControllerPopping addObserver:self forKeyPath:@"qmui_isViewWillAppeare" options:NSKeyValueObservingOptionNew context:nil];
+    } else if (state == UIGestureRecognizerStateEnded) {
         if (CGRectGetMinX(self.topViewController.view.superview.frame) < 0) {
             // by molice:只是碰巧发现如果是手势返回取消时，不管在哪个位置取消，self.topViewController.view.superview.frame.orgin.x必定是-124，所以用这个<0的条件来判断
-            [self navigationController:self willShowViewController:self.viewControllerPopping animated:YES];
-            self.viewControllerPopping = nil;
-            self.isViewControllerTransiting = NO;
             QMUILog(@"手势返回放弃了");
         } else {
             QMUILog(@"执行手势返回");
+        }
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"qmui_isViewWillAppeare"]) {
+        [self.viewControllerPopping removeObserver:self forKeyPath:@"qmui_isViewWillAppeare"];
+        NSNumber *newValue = change[NSKeyValueChangeNewKey];
+        if (newValue.boolValue) {
+            [self navigationController:self willShowViewController:self.viewControllerPopping animated:YES];
+            self.viewControllerPopping = nil;
+            self.isViewControllerTransiting = NO;
         }
     }
 }
@@ -259,7 +330,7 @@
 // 注意如果实现了某一个navigationController的delegate方法，必须同时检查并且调用delegateProxy相对应的方法
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    [self willShowViewController:viewController];
+    [self willShowViewController:viewController animated:animated];
     if ([self.delegateProxy respondsToSelector:_cmd]) {
         [self.delegateProxy navigationController:navigationController willShowViewController:viewController animated:animated];
     }
@@ -268,7 +339,7 @@
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
     self.viewControllerPopping = nil;
     self.isViewControllerTransiting = NO;
-    [self didShowViewController:viewController];
+    [self didShowViewController:viewController animated:animated];
     if ([self.delegateProxy respondsToSelector:_cmd]) {
         [self.delegateProxy navigationController:navigationController didShowViewController:viewController animated:animated];
     }
@@ -309,12 +380,11 @@
 
 @implementation QMUINavigationController (UISubclassingHooks)
 
-- (void)willShowViewController:(UIViewController *)viewController {
+- (void)willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
     // 子类可以重写
-    [self renderStyleInNavigationController:self currentViewController:viewController];
 }
 
-- (void)didShowViewController:(UIViewController *)viewController {
+- (void)didShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
     // 子类可以重写
 }
 
