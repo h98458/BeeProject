@@ -253,7 +253,7 @@
 	NSString * align = [dict stringOfAny:@[@"align"] removeAll:YES];
 	if ( align )
 	{
-		self.ALIGN( align );
+		self.E_ALIGN( align );
 	}
 	
 	NSString * v_align = [dict stringOfAny:@[@"valign", @"v-align", @"vertical-align"] removeAll:YES];

@@ -129,7 +129,7 @@ DEF_STRING( OVERFLOW_INHERIT,		@"inherit" )
 @dynamic PADDING_BOTTOM;
 @dynamic PADDING_LEFT;
 @dynamic PADDING_RIGHT;
-@dynamic ALIGN;
+@dynamic E_ALIGN;
 @dynamic V_ALIGN;
 @dynamic FLOATING;
 @dynamic V_FLOATING;
@@ -726,7 +726,7 @@ DEF_STRING( OVERFLOW_INHERIT,		@"inherit" )
 	return [[block copy] autorelease];
 }
 
-- (BeeUIStyleBlockN)ALIGN
+- (BeeUIStyleBlockN)E_ALIGN
 {
 	BeeUIStyleBlockN block = ^ BeeUIStyle * ( id first, ... )
 	{

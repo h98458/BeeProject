@@ -92,7 +92,7 @@ AS_STRING( OVERFLOW_INHERIT )
 @property (nonatomic, readonly) BeeUIStyleBlockN		PADDING_BOTTOM;
 @property (nonatomic, readonly) BeeUIStyleBlockN		PADDING_LEFT;
 @property (nonatomic, readonly) BeeUIStyleBlockN		PADDING_RIGHT;
-@property (nonatomic, readonly) BeeUIStyleBlockN		ALIGN;
+@property (nonatomic, readonly) BeeUIStyleBlockN		E_ALIGN;
 @property (nonatomic, readonly) BeeUIStyleBlockN		V_ALIGN;
 @property (nonatomic, readonly) BeeUIStyleBlockN		FLOATING;
 @property (nonatomic, readonly) BeeUIStyleBlockN		V_FLOATING;
