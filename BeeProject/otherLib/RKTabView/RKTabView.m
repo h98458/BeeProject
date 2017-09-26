@@ -2,7 +2,6 @@
 //  Copyright (c) 2013 Rafael Kayumov. License: MIT.
 
 #import "RKTabView.h"
-#import "RkTabItem.h"
 
 #define DARKER_BACKGROUND_VIEW_TAG 33
 

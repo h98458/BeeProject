@@ -25,13 +25,9 @@
 		C0419ABF1F6A259C000FCDD2 /* QDCommonUI.m in Sources */ = {isa = PBXBuildFile; fileRef = C0419AAE1F6A259C000FCDD2 /* QDCommonUI.m */; };
 		C0419AC01F6A259C000FCDD2 /* QDUIHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C0419AB01F6A259C000FCDD2 /* QDUIHelper.m */; };
 		C0419AC11F6A259C000FCDD2 /* UIImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = C0419AB21F6A259C000FCDD2 /* UIImageEffects.m */; };
-		C066928F1E3445EB009B53BC /* QMUIResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C066928E1E3445EB009B53BC /* QMUIResources.bundle */; };
 		C066929C1E344C64009B53BC /* libstdc++.6.0.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C066929B1E344C64009B53BC /* libstdc++.6.0.9.tbd */; };
 		C066929E1E344DDF009B53BC /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C066929D1E344DDF009B53BC /* Photos.framework */; };
 		C06692A01E344E13009B53BC /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C066929F1E344E13009B53BC /* MediaPlayer.framework */; };
-		C06692B41E345C46009B53BC /* QMUIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; };
-		C06692B51E345C91009B53BC /* QMUIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; };
-		C06692B61E345C91009B53BC /* QMUIKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C06692B31E345C19009B53BC /* QMUIKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C0AAC12A1D0FA7010044C6F0 /* AppTab_iPad.m in Sources */ = {isa = PBXBuildFile; fileRef = C0AAC1061D0FA7010044C6F0 /* AppTab_iPad.m */; };
 		C0AAC12B1D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0AAC1081D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png */; };
 		C0AAC12C1D0FA7010044C6F0 /* welcome01_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0AAC10A1D0FA7010044C6F0 /* welcome01_iPad@2x.png */; };
@@ -462,23 +458,6 @@
 		C0F558381D0C53AB00B6D80B /* ZipArchive.mm in Sources */ = {isa = PBXBuildFile; fileRef = C0F554411D0C53AB00B6D80B /* ZipArchive.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		C06692B21E345C19009B53BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C06692AB1E345C19009B53BC /* qmui.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = FE0AFAD11D82B9D8000D21D9;
-			remoteInfo = QMUIKit;
-		};
-		C06692B71E345C91009B53BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C06692AB1E345C19009B53BC /* qmui.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = FE0AFAD01D82B9D8000D21D9;
-			remoteInfo = QMUIKit;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		C06692B91E345C91009B53BC /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -486,7 +465,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				C06692B61E345C91009B53BC /* QMUIKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -531,11 +509,14 @@
 		C0419AB01F6A259C000FCDD2 /* QDUIHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QDUIHelper.m; sourceTree = "<group>"; };
 		C0419AB11F6A259C000FCDD2 /* UIImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIImageEffects.h; sourceTree = "<group>"; };
 		C0419AB21F6A259C000FCDD2 /* UIImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImageEffects.m; sourceTree = "<group>"; };
+		C04B15C51F79EF71006F2F40 /* QMUIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QMUIKit.framework; path = Carthage/Build/iOS/QMUIKit.framework; sourceTree = SOURCE_ROOT; };
+		C04BDE431F79EBF100198FBA /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
+		C04BDE441F79EBF100198FBA /* Cartfile.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile.resolved; sourceTree = "<group>"; };
+		C04BDE451F79EBF200198FBA /* Carthage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Carthage; sourceTree = "<group>"; };
 		C066928E1E3445EB009B53BC /* QMUIResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = QMUIResources.bundle; path = QMUI/QMUIKit/UIResources/QMUIResources.bundle; sourceTree = SOURCE_ROOT; };
 		C066929B1E344C64009B53BC /* libstdc++.6.0.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.0.9.tbd"; path = "usr/lib/libstdc++.6.0.9.tbd"; sourceTree = SDKROOT; };
 		C066929D1E344DDF009B53BC /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		C066929F1E344E13009B53BC /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		C06692AB1E345C19009B53BC /* qmui.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = qmui.xcodeproj; path = QMUI/qmui.xcodeproj; sourceTree = "<group>"; };
 		C0AAC1051D0FA7010044C6F0 /* AppTab_iPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppTab_iPad.h; sourceTree = "<group>"; };
 		C0AAC1061D0FA7010044C6F0 /* AppTab_iPad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppTab_iPad.m; sourceTree = "<group>"; };
 		C0AAC1081D0FA7010044C6F0 /* bg_navigationBar_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg_navigationBar_iPad@2x.png"; sourceTree = "<group>"; };
@@ -1357,8 +1338,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C06692B51E345C91009B53BC /* QMUIKit.framework in Frameworks */,
-				C06692B41E345C46009B53BC /* QMUIKit.framework in Frameworks */,
 				C06692A01E344E13009B53BC /* MediaPlayer.framework in Frameworks */,
 				C0F5512A1D0C46C400B6D80B /* Foundation.framework in Frameworks */,
 				C066929E1E344DDF009B53BC /* Photos.framework in Frameworks */,
@@ -1387,7 +1366,9 @@
 		C001DF951D0C3CF10008D9DC = {
 			isa = PBXGroup;
 			children = (
-				C06692AA1E345C0B009B53BC /* QMUI */,
+				C04BDE431F79EBF100198FBA /* Cartfile */,
+				C04BDE441F79EBF100198FBA /* Cartfile.resolved */,
+				C04BDE451F79EBF200198FBA /* Carthage */,
 				C0F551481D0C53AA00B6D80B /* framework */,
 				C001DFA01D0C3CF20008D9DC /* BeeProject */,
 				C0F551471D0C47DD00B6D80B /* Frameworks */,
@@ -1503,22 +1484,6 @@
 			path = Modules;
 			sourceTree = "<group>";
 		};
-		C06692AA1E345C0B009B53BC /* QMUI */ = {
-			isa = PBXGroup;
-			children = (
-				C06692AB1E345C19009B53BC /* qmui.xcodeproj */,
-			);
-			name = QMUI;
-			sourceTree = "<group>";
-		};
-		C06692AC1E345C19009B53BC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				C06692B31E345C19009B53BC /* QMUIKit.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		C0AAC1071D0FA7010044C6F0 /* resource */ = {
 			isa = PBXGroup;
 			children = (
@@ -1625,6 +1590,7 @@
 		C0B837D91D0C5E740084D6C8 /* otherLib */ = {
 			isa = PBXGroup;
 			children = (
+				C04B15C51F79EF71006F2F40 /* QMUIKit.framework */,
 				C0C03BC71D0FE579008DDF74 /* GTMBase64-master */,
 				C0B837DA1D0C5E740084D6C8 /* RKTabView */,
 			);
@@ -3141,7 +3107,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				C06692B81E345C91009B53BC /* PBXTargetDependency */,
 			);
 			name = BeeProject;
 			productName = BeeProject;
@@ -3174,28 +3139,12 @@
 			mainGroup = C001DF951D0C3CF10008D9DC;
 			productRefGroup = C001DF9F1D0C3CF20008D9DC /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = C06692AC1E345C19009B53BC /* Products */;
-					ProjectRef = C06692AB1E345C19009B53BC /* qmui.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				C001DF9D1D0C3CF10008D9DC /* BeeProject */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		C06692B31E345C19009B53BC /* QMUIKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = QMUIKit.framework;
-			remoteRef = C06692B21E345C19009B53BC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C001DF9C1D0C3CF10008D9DC /* Resources */ = {
@@ -3229,7 +3178,6 @@
 				C0AAC12C1D0FA7010044C6F0 /* welcome01_iPad@2x.png in Resources */,
 				C0AAC13A1D0FA7010044C6F0 /* wizard_5_iPad.xml in Resources */,
 				C0AAC1361D0FA7010044C6F0 /* wizard_1_iPad.xml in Resources */,
-				C066928F1E3445EB009B53BC /* QMUIResources.bundle in Resources */,
 				C001DFAE1D0C3CF20008D9DC /* Assets.xcassets in Resources */,
 				C0B838171D0C615E0084D6C8 /* welcome05_4@2x.png in Resources */,
 				C0B838111D0C615E0084D6C8 /* welcome02_4@2x.png in Resources */,
@@ -3648,14 +3596,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		C06692B81E345C91009B53BC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = QMUIKit;
-			targetProxy = C06692B71E345C91009B53BC /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		C001DFC91D0C3CF20008D9DC /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -3751,14 +3691,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/QMUI/QMUI",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BeeProject/PrefixHeader.pch;
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-					"$(PROJECT_DIR)/QMUI/QMUI/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = BeeProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -3783,14 +3720,11 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/QMUI/QMUI",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BeeProject/PrefixHeader.pch;
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-					"$(PROJECT_DIR)/QMUI/QMUI/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				INFOPLIST_FILE = BeeProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
