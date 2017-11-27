@@ -102,6 +102,8 @@
 		C0C03BC61D0FE3B5008DDF74 /* SoftInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C03BC51D0FE3B5008DDF74 /* SoftInfoModel.m */; };
 		C0C03BCC1D0FE579008DDF74 /* GTMBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C03BC91D0FE579008DDF74 /* GTMBase64.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C0C03BCD1D0FE579008DDF74 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = C0C03BCB1D0FE579008DDF74 /* README.md */; };
+		C0DA0F111FCBBD8B003A745C /* QMUIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C04B15C51F79EF71006F2F40 /* QMUIKit.framework */; };
+		C0DA0F121FCBBD8B003A745C /* QMUIKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C04B15C51F79EF71006F2F40 /* QMUIKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C0F5512A1D0C46C400B6D80B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0F551291D0C46C400B6D80B /* Foundation.framework */; };
 		C0F5512C1D0C46D600B6D80B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0F5512B1D0C46D600B6D80B /* UIKit.framework */; };
 		C0F5512E1D0C46E900B6D80B /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C0F5512D1D0C46E900B6D80B /* libxml2.tbd */; };
@@ -465,6 +467,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				C0DA0F121FCBBD8B003A745C /* QMUIKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1347,6 +1350,7 @@
 				C0F551441D0C47B200B6D80B /* CoreText.framework in Frameworks */,
 				C0F551421D0C47A400B6D80B /* CFNetwork.framework in Frameworks */,
 				C0F551401D0C479900B6D80B /* CoreVideo.framework in Frameworks */,
+				C0DA0F111FCBBD8B003A745C /* QMUIKit.framework in Frameworks */,
 				C0F5513E1D0C478C00B6D80B /* QuartzCore.framework in Frameworks */,
 				C0F5513C1D0C477600B6D80B /* SystemConfiguration.framework in Frameworks */,
 				C0F5513A1D0C476300B6D80B /* Security.framework in Frameworks */,

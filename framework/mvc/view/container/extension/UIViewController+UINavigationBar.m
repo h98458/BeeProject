@@ -530,86 +530,79 @@
 
 - (void)showBarButton:(NSInteger)position custom:(UIView *)view
 {
-	if ( view )
-	{
-		CGRect buttonFrame = CGRectZero;
-
-		if ( NO == CGSizeEqualToSize( [BeeUINavigationBar buttonSize], CGSizeZero ) )
-		{
-			buttonFrame = CGSizeMakeBound( [BeeUINavigationBar buttonSize] );
-		}
-		else
-		{
-			CGSize barSize = self.navigationController.navigationBar.frame.size;
-			CGSize buttonSize = [[view class] estimateUISizeByBound:CGSizeMake(BUTTON_MIN_WIDTH, BUTTON_MIN_HEIGHT) forData:nil];
-
-			if ( IOS7_OR_LATER )
-			{
-				buttonFrame = CGRectMake(0, 0, buttonSize.width, fminf(barSize.height, buttonSize.height));
-			}
-			else
-			{
-				buttonFrame = CGRectMake(0, 0, buttonSize.width, fminf(barSize.height, buttonSize.height));
-			}
-
-			if ( buttonFrame.size.width <= BUTTON_MIN_WIDTH )
-			{
-				buttonFrame.size.width = BUTTON_MIN_WIDTH;
-			}
-			
-			if ( buttonFrame.size.height <= BUTTON_MIN_HEIGHT )
-			{
-				buttonFrame.size.height = BUTTON_MIN_HEIGHT;
-			}
-		}
-
-		BeeNavigationBarButton * button = [[[BeeNavigationBarButton alloc] initWithFrame:buttonFrame] autorelease];
-		button.contentMode = UIViewContentModeScaleAspectFit;
-		button.backgroundColor = [UIColor clearColor];
-		button.innerView = view;
-		[button addSubview:view];
-
-		CGRect viewFrame = buttonFrame;
-		viewFrame.origin = CGPointZero;
-		view.frame = viewFrame;
-		view.userInteractionEnabled = NO;
-
-		if ( BeeUINavigationBar.LEFT == position )
-		{
-			if ( IOS7_OR_LATER )
-			{
-				[button setNavigationInsets:UIEdgeInsetsMake(0, BUTTON_INSETS, 0, 0)];
-			}
-
-			[button addTarget:self action:@selector(didLeftBarButtonTouched) forControlEvents:UIControlEventTouchUpInside];
-
-			self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:button] autorelease];
-			self.navigationItem.leftBarButtonItem.width = buttonFrame.size.width;
-		}
-		else if ( BeeUINavigationBar.RIGHT == position )
-		{
-			if ( IOS7_OR_LATER )
-			{
-				[button setNavigationInsets:UIEdgeInsetsMake(0, 0, 0, BUTTON_INSETS + 4.0f)];
-			}
-			
-			[button addTarget:self action:@selector(didRightBarButtonTouched) forControlEvents:UIControlEventTouchUpInside];
-
-			self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:button] autorelease];
-			self.navigationItem.rightBarButtonItem.width = buttonFrame.size.width;
-		}
-	}
-	else
-	{
-		if ( BeeUINavigationBar.LEFT == position )
-		{
-			self.navigationItem.leftBarButtonItem = nil;
-		}
-		else if ( BeeUINavigationBar.RIGHT == position )
-		{
-			self.navigationItem.rightBarButtonItem = nil;
-		}
-	}
+    if ( view )
+    {
+        CGRect buttonFrame = CGRectZero;
+        
+        if ( NO == CGSizeEqualToSize( [BeeUINavigationBar buttonSize], CGSizeZero ) )
+        {
+            //            buttonFrame = CGSizeMakeBound( [BeeUINavigationBar buttonSize] );
+            buttonFrame = view.frame;
+        }
+        else
+        {
+            CGSize barSize = self.navigationController.navigationBar.frame.size;
+            CGSize buttonSize = [[view class] estimateUISizeByBound:CGSizeMake(BUTTON_MIN_WIDTH, BUTTON_MIN_HEIGHT) forData:nil];
+            
+            if ( IOS7_OR_LATER )
+            {
+                buttonFrame = CGRectMake(0, 0, buttonSize.width, fminf(barSize.height, buttonSize.height));
+            }
+            else
+            {
+                buttonFrame = CGRectMake(0, 0, buttonSize.width, fminf(barSize.height, buttonSize.height));
+            }
+            
+            if ( buttonFrame.size.width <= BUTTON_MIN_WIDTH )
+            {
+                buttonFrame.size.width = BUTTON_MIN_WIDTH;
+            }
+            
+            if ( buttonFrame.size.height <= BUTTON_MIN_HEIGHT )
+            {
+                buttonFrame.size.height = BUTTON_MIN_HEIGHT;
+            }
+        }
+        
+        view.frame = buttonFrame;
+        
+        if ( BeeUINavigationBar.LEFT == position )
+        {
+            self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:view] autorelease];
+            self.navigationItem.leftBarButtonItem.width = buttonFrame.size.width;
+        }
+        else if ( BeeUINavigationBar.RIGHT == position )
+        {
+            if (IOS7_OR_LATER)
+            {
+                UIBarButtonItem *rightItem = [[[UIBarButtonItem alloc] initWithCustomView:view] autorelease];
+                UIBarButtonItem *spaceButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil] autorelease];
+                
+                spaceButtonItem.width = -12;
+                rightItem.customView.frame = CGRectMake(spaceButtonItem.width-view.width, 0, view.width, view.height);
+                [self.navigationItem setRightBarButtonItems:@[spaceButtonItem, rightItem]];
+            }
+            else
+            {
+                self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:view] autorelease];
+                self.navigationItem.rightBarButtonItem.width = buttonFrame.size.width;
+            }
+            
+            
+            
+        }
+    }
+    else
+    {
+        if ( BeeUINavigationBar.LEFT == position )
+        {
+            self.navigationItem.leftBarButtonItem = nil;
+        }
+        else if ( BeeUINavigationBar.RIGHT == position )
+        {
+            self.navigationItem.rightBarButtonItem = nil;
+        }
+    }
 }
 
 - (void)hideBarButton:(NSInteger)position
