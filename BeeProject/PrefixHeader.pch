@@ -16,11 +16,6 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "Bee.h"
-
-#import <QMUIKit/QMUIKit.h>
-#import "QDCommonUI.h"
-#import "QDUIHelper.h"
-#import "QDThemeManager.h"
 #endif
 
 #endif /* PrefixHeader_pch */
